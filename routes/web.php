@@ -3,78 +3,51 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\StoreManagementController;
+use App\Http\Controllers\Admin\ProductController;  
+use App\Http\Controllers\FoodController;
 
-// Homepage (only once)
+// Homepage
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// Placeholder routes (will implement later)
-Route::get('/products', function () {
-    return view('products.index');
-})->name('products.index');
-
-Route::get('/brands', function () {
-    return view('brands');
-})->name('brands');
-
-Route::get('/sale', function () {
-    return view('sale');
-})->name('sale');
-
-Route::get('/blog', function () {
-    return view('blog');
-})->name('blog');
-
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
-
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
-
-Route::get('/faq', function () {
-    return view('faq');
-})->name('faq');
-
-Route::get('/cart', function () {
-    return view('cart');
-})->name('cart');
-
-// Account routes (customer - will implement later)
-Route::middleware(['auth'])->prefix('account')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('account.dashboard');
-    })->name('account.dashboard');
-    
-    Route::get('/orders', function () {
-        return view('account.orders');
-    })->name('account.orders');
-    
-    Route::get('/wishlist', function () {
-        return view('account.wishlist');
-    })->name('account.wishlist');
-    
-    Route::get('/profile', function () {
-        return view('account.profile');
-    })->name('account.profile');
+// Food Routes (Public)
+Route::prefix('food')->name('food.')->group(function () {
+    Route::get('/', [FoodController::class, 'index'])->name('index');
+    Route::get('/{slug}', [FoodController::class, 'show'])->name('show');
 });
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Guest (not logged in)
+    // Guest routes
     Route::middleware('guest:admin')->group(function () {
         Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
         Route::post('login', [AuthController::class, 'login'])->name('login.submit');
     });
     
-    // Protected (logged in)
+    // Protected routes
     Route::middleware('admin')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        
+        // Store Management (Categories, Brands, Origins)
+        Route::prefix('store')->name('store.')->group(function () {
+            Route::get('/', [StoreManagementController::class, 'index'])->name('index');
+            Route::post('category', [StoreManagementController::class, 'storeCategory'])->name('category.store');
+            Route::put('category/{id}', [StoreManagementController::class, 'updateCategory'])->name('category.update');
+            Route::delete('category/{id}', [StoreManagementController::class, 'deleteCategory'])->name('category.delete');
+            Route::post('brand', [StoreManagementController::class, 'storeBrand'])->name('brand.store');
+            Route::put('brand/{id}', [StoreManagementController::class, 'updateBrand'])->name('brand.update');
+            Route::delete('brand/{id}', [StoreManagementController::class, 'deleteBrand'])->name('brand.delete');
+            Route::post('origin', [StoreManagementController::class, 'storeOrigin'])->name('origin.store');
+            Route::put('origin/{id}', [StoreManagementController::class, 'updateOrigin'])->name('origin.update');
+            Route::delete('origin/{id}', [StoreManagementController::class, 'deleteOrigin'])->name('origin.delete');
+        });
+        
+        // Product Management
+        Route::resource('products', ProductController::class);
     });
 });
 
-// Customer auth routes (login, register, etc.)
 require __DIR__.'/auth.php';
