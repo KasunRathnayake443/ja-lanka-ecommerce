@@ -48,7 +48,10 @@ async function loadMobileCart() {
         const emptyCartDiv = document.getElementById('emptyCart');
         const cartSummary = document.getElementById('cartSummary');
         
-        if (data.items.length === 0) {
+        // Filter out items with null product (deleted products)
+        const validItems = data.items.filter(item => item.product !== null);
+        
+        if (validItems.length === 0) {
             cartItemsDiv.classList.add('hidden');
             emptyCartDiv.classList.remove('hidden');
             cartSummary.classList.add('hidden');
@@ -60,10 +63,18 @@ async function loadMobileCart() {
         cartSummary.classList.remove('hidden');
         
         let itemsHtml = '';
-        data.items.forEach(item => {
+        let validTotal = 0;
+        
+        validItems.forEach(item => {
+            // Skip if product is null (safety check)
+            if (!item.product) return;
+            
             const imageUrl = item.product.images && item.product.images[0] 
                 ? `/storage/${item.product.images[0].image_path}` 
                 : '/images/placeholder.jpg';
+            
+            // Calculate total for valid items only
+            validTotal += item.quantity * parseFloat(item.price);
             
             itemsHtml += `
                 <div class="bg-white rounded-lg shadow p-3 flex gap-3" id="mobile-cart-item-${item.id}">
@@ -84,10 +95,13 @@ async function loadMobileCart() {
         
         cartItemsDiv.innerHTML = itemsHtml;
         
-        document.getElementById('mobileSubtotal').innerText = `LKR ${data.total.toLocaleString()}`;
-        document.getElementById('mobileTotal').innerText = `LKR ${data.total.toLocaleString()}`;
+        // Update totals with valid items only
+        document.getElementById('mobileSubtotal').innerText = `LKR ${validTotal.toLocaleString()}`;
+        document.getElementById('mobileTotal').innerText = `LKR ${validTotal.toLocaleString()}`;
         
-        updateCartCount(data.count);
+        // Update cart count with valid items only
+        const validCount = validItems.reduce((sum, item) => sum + item.quantity, 0);
+        updateCartCount(validCount);
         
     } catch (error) {
         console.error('Error:', error);

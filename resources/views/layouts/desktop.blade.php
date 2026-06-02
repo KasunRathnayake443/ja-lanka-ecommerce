@@ -56,7 +56,10 @@ async function loadCart() {
         const cartContent = document.getElementById('cartContent');
         const cartFooter = document.getElementById('cartFooter');
         
-        if (data.items.length === 0) {
+        // Filter out items with null product (deleted products)
+        const validItems = data.items.filter(item => item.product !== null);
+        
+        if (validItems.length === 0) {
             cartContent.innerHTML = `
                 <div class="text-center py-12">
                     <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,16 +76,22 @@ async function loadCart() {
         cartFooter.classList.remove('hidden');
         
         let itemsHtml = '';
-        data.items.forEach(item => {
+        let validTotal = 0;
+        
+        validItems.forEach(item => {
+            if (!item.product) return;
+            
             const imageUrl = item.product.images && item.product.images[0] 
                 ? `/storage/${item.product.images[0].image_path}` 
                 : '/images/placeholder.jpg';
+            
+            validTotal += item.quantity * parseFloat(item.price);
             
             itemsHtml += `
                 <div class="flex gap-3 border-b pb-4 mb-4" id="cart-item-${item.id}">
                     <img src="${imageUrl}" class="w-20 h-20 object-cover rounded">
                     <div class="flex-1">
-                        <h3 class="font-semibold">${item.product.name}</h3>
+                        <h3 class="font-semibold">${escapeHtml(item.product.name)}</h3>
                         <p class="text-gray-600 text-sm">LKR ${parseFloat(item.price).toLocaleString()}</p>
                         <div class="flex items-center gap-2 mt-2">
                             <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" class="w-8 h-8 border rounded hover:bg-gray-100">-</button>
@@ -97,13 +106,25 @@ async function loadCart() {
         
         cartContent.innerHTML = itemsHtml;
         
-        document.getElementById('cartSubtotal').innerText = `LKR ${data.total.toLocaleString()}`;
-        document.getElementById('cartTotal').innerText = `LKR ${data.total.toLocaleString()}`;
+        document.getElementById('cartSubtotal').innerText = `LKR ${validTotal.toLocaleString()}`;
+        document.getElementById('cartTotal').innerText = `LKR ${validTotal.toLocaleString()}`;
+        
+        // Update cart count in header
+        const validCount = validItems.reduce((sum, item) => sum + item.quantity, 0);
+        updateCartCount(validCount);
         
     } catch (error) {
         console.error('Error loading cart:', error);
         document.getElementById('cartContent').innerHTML = '<div class="text-center py-8 text-red-500">Error loading cart</div>';
     }
+}
+
+// Add escapeHtml function if not exists
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function openCartModal() {
