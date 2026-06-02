@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Admin Panel - Ja Lanka</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
 <body class="bg-gray-100">
 
@@ -22,21 +22,21 @@
         
         <!-- Navigation -->
         <nav class="flex-1 py-6">
-            <a href="{{ route('admin.dashboard') }}" 
+            <a href="<?php echo e(route('admin.dashboard')); ?>" 
                class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
                 <span class="ml-3">Dashboard</span>
             </a>
-            <a href="{{ route('admin.products.index') }}" 
+            <a href="<?php echo e(route('admin.products.index')); ?>" 
             class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                 </svg>
                 <span class="ml-3">Products</span>
             </a>
-                        <a href="{{ route('admin.store.index') }}" 
+                        <a href="<?php echo e(route('admin.store.index')); ?>" 
             class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -61,7 +61,7 @@
             </a>
 
             <!-- Banners Menu -->
-            <a href="{{ route('admin.banners.index') }}" 
+            <a href="<?php echo e(route('admin.banners.index')); ?>" 
             class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
@@ -70,7 +70,7 @@
             </a>
 
             <!-- Flash Sales Menu -->
-            <a href="{{ route('admin.flash-sales.index') }}" 
+            <a href="<?php echo e(route('admin.flash-sales.index')); ?>" 
             class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -90,8 +90,8 @@
         
         <!-- Logout -->
         <div class="p-6 border-t border-gray-700">
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
+            <form method="POST" action="<?php echo e(route('admin.logout')); ?>">
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="flex items-center w-full text-gray-300 hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -106,21 +106,22 @@
     <div class="flex-1 flex flex-col overflow-y-auto">
         <!-- Top Bar -->
         <div class="bg-white shadow-sm px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-            <h1 class="text-2xl font-semibold text-gray-800">@yield('page_title', 'Dashboard')</h1>
+            <h1 class="text-2xl font-semibold text-gray-800"><?php echo $__env->yieldContent('page_title', 'Dashboard'); ?></h1>
             <div class="flex items-center space-x-4">
-                <span class="text-gray-600">{{ Auth::guard('admin')->user()->name }}</span>
+                <span class="text-gray-600"><?php echo e(Auth::guard('admin')->user()->name); ?></span>
                 <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {{ substr(Auth::guard('admin')->user()->name, 0, 1) }}
+                    <?php echo e(substr(Auth::guard('admin')->user()->name, 0, 1)); ?>
+
                 </div>
             </div>
         </div>
         
         <!-- Page Content -->
         <div class="p-8">
-            @yield('content')
+            <?php echo $__env->yieldContent('content'); ?>
         </div>
     </div>
 </div>
 
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\ja-lanka-ecommerce\resources\views/admin/layouts/app.blade.php ENDPATH**/ ?>

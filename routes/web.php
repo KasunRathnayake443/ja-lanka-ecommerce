@@ -9,6 +9,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\FlashSaleController;
 
 // ========== DESKTOP ROUTES ==========
 Route::get('/', function () {
@@ -60,6 +62,8 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     });
+
+    Route::get('/banners', [App\Http\Controllers\BannerController::class, 'getActiveBanners']);
 });
 
 // ========== MOBILE ROUTES ==========
@@ -85,6 +89,10 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/account', function () {
         return view('mobile.account');
     })->name('account');
+
+    Route::get('/sale', function () {
+    return view('mobile.sale');
+    })->name('sale');
 });
 
 // ========== FOOD ROUTES ==========
@@ -116,6 +124,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
         
         Route::resource('products', AdminProductController::class);
+
+        // Banner Management
+            Route::resource('banners', BannerController::class);
+            Route::post('banners/update-order', [BannerController::class, 'updateOrder'])->name('banners.update-order');
+
+            // Flash Sale Routes
+            Route::get('/flash-sales', [App\Http\Controllers\FlashSaleController::class, 'getActiveBanners']);
+            Route::resource('flash-sales', FlashSaleController::class);
+            Route::post('flash-sales/auto-add', [FlashSaleController::class, 'autoAdd'])->name('flash-sales.auto-add');
     });
 });
 

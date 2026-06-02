@@ -1,8 +1,8 @@
-@extends('layouts.desktop')
 
-@section('title', 'Home - Global Flavors Mart')
 
-@section('content')
+<?php $__env->startSection('title', 'Home - Global Flavors Mart'); ?>
+
+<?php $__env->startSection('content'); ?>
 <!-- Hero Banner Slider -->
 <div class="relative" x-data="{ currentSlide: 0, slides: [] }" x-init="
     fetch('/api/banners')
@@ -46,7 +46,7 @@
     </div>
     
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <a href="{{ route('shop') }}?type=food" class="group">
+        <a href="<?php echo e(route('shop')); ?>?type=food" class="group">
             <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-8 text-center text-white transform transition hover:scale-105">
                 <div class="text-6xl mb-4">🍜</div>
                 <h3 class="text-xl font-bold">Food Items</h3>
@@ -54,7 +54,7 @@
             </div>
         </a>
         
-        <a href="{{ route('shop') }}?type=appliance" class="group">
+        <a href="<?php echo e(route('shop')); ?>?type=appliance" class="group">
             <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-8 text-center text-white transform transition hover:scale-105">
                 <div class="text-6xl mb-4">🔌</div>
                 <h3 class="text-xl font-bold">Appliances</h3>
@@ -62,7 +62,7 @@
             </div>
         </a>
         
-        <a href="{{ route('mobile.sale') }}" class="group">
+        <a href="<?php echo e(route('mobile.sale')); ?>" class="group">
             <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-8 text-center text-white transform transition hover:scale-105">
                 <div class="text-6xl mb-4">🔥</div>
                 <h3 class="text-xl font-bold">Sale</h3>
@@ -70,7 +70,7 @@
             </div>
         </a>
         
-        <a href="{{ route('shop') }}?sort=newest" class="group">
+        <a href="<?php echo e(route('shop')); ?>?sort=newest" class="group">
             <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-8 text-center text-white transform transition hover:scale-105">
                 <div class="text-6xl mb-4">✨</div>
                 <h3 class="text-xl font-bold">New Arrivals</h3>
@@ -131,7 +131,7 @@
             </div>
             
             <div class="text-center mt-8" x-show="flashSales.length > 0">
-                <a href="{{ route('mobile.sale') }}" class="inline-block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition">
+                <a href="<?php echo e(route('mobile.sale')); ?>" class="inline-block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition">
                     View All Sale Items →
                 </a>
             </div>
@@ -349,4 +349,5 @@ function subscribeNewsletter() {
     overflow: hidden;
 }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.desktop', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\ja-lanka-ecommerce\resources\views/home.blade.php ENDPATH**/ ?>

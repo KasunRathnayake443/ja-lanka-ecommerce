@@ -1,8 +1,8 @@
-@extends('layouts.mobile')
 
-@section('title', 'Home')
 
-@section('content')
+<?php $__env->startSection('title', 'Home'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="pb-20">
     
     <!-- Hero Banner Slider -->
@@ -40,25 +40,25 @@
     
     <!-- Quick Action Buttons -->
     <div class="grid grid-cols-4 gap-2 p-4 bg-white border-b">
-        <a href="{{ route('mobile.shop') }}?type=food" class="text-center">
+        <a href="<?php echo e(route('mobile.shop')); ?>?type=food" class="text-center">
             <div class="bg-red-50 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
                 <span class="text-2xl">🍜</span>
             </div>
             <span class="text-xs text-gray-700 mt-1 block">Food</span>
         </a>
-        <a href="{{ route('mobile.shop') }}?type=appliance" class="text-center">
+        <a href="<?php echo e(route('mobile.shop')); ?>?type=appliance" class="text-center">
             <div class="bg-blue-50 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
                 <span class="text-2xl">🔌</span>
             </div>
             <span class="text-xs text-gray-700 mt-1 block">Appliances</span>
         </a>
-        <a href="{{ route('mobile.sale') }}" class="text-center">
+        <a href="<?php echo e(route('mobile.sale')); ?>" class="text-center">
             <div class="bg-orange-50 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
                 <span class="text-2xl">🔥</span>
             </div>
             <span class="text-xs text-gray-700 mt-1 block">Sale</span>
         </a>
-        <a href="{{ route('mobile.shop') }}?sort=newest" class="text-center">
+        <a href="<?php echo e(route('mobile.shop')); ?>?sort=newest" class="text-center">
             <div class="bg-green-50 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
                 <span class="text-2xl">✨</span>
             </div>
@@ -74,7 +74,7 @@
     ">
         <div class="flex justify-between items-center mb-3">
             <h3 class="text-lg font-semibold">🔥 Flash Sale</h3>
-            <a href="{{ route('mobile.sale') }}" class="text-xs text-red-600">See All →</a>
+            <a href="<?php echo e(route('mobile.sale')); ?>" class="text-xs text-red-600">See All →</a>
         </div>
         
         <div x-show="flashSales.length === 0" class="bg-gray-50 rounded-lg p-8 text-center">
@@ -114,7 +114,7 @@
     ">
         <div class="flex justify-between items-center mb-3">
             <h3 class="text-lg font-semibold">✨ Featured for You</h3>
-            <a href="{{ route('mobile.shop') }}" class="text-xs text-red-600">See All →</a>
+            <a href="<?php echo e(route('mobile.shop')); ?>" class="text-xs text-red-600">See All →</a>
         </div>
         
         <div x-show="featured.length === 0" class="bg-gray-50 rounded-lg p-8 text-center">
@@ -160,7 +160,7 @@
     ">
         <div class="flex justify-between items-center mb-3">
             <h3 class="text-lg font-semibold">🆕 New Arrivals</h3>
-            <a href="{{ route('mobile.shop') }}?sort=newest" class="text-xs text-red-600">See All →</a>
+            <a href="<?php echo e(route('mobile.shop')); ?>?sort=newest" class="text-xs text-red-600">See All →</a>
         </div>
         
         <div x-show="newArrivals.length === 0" class="bg-gray-50 rounded-lg p-8 text-center">
@@ -247,4 +247,5 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\ja-lanka-ecommerce\resources\views/mobile/home.blade.php ENDPATH**/ ?>

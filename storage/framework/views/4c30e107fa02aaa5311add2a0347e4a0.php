@@ -1,0 +1,221 @@
+
+
+<?php $__env->startSection('title', $product->name); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="pb-20">
+    <!-- Product Images -->
+    <div class="relative">
+        <div class="bg-white">
+            <img id="mobileMainImage" src="<?php echo e(asset('storage/' . ($product->images->first()->image_path ?? 'images/placeholder.jpg'))); ?>" 
+                 class="w-full h-80 object-cover">
+        </div>
+        
+        <?php if($product->images->count() > 1): ?>
+        <div class="absolute bottom-4 left-0 right-0">
+            <div class="flex justify-center gap-2">
+                <?php $__currentLoopData = $product->images; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="w-12 h-12 cursor-pointer border-2 rounded overflow-hidden <?php echo e($index == 0 ? 'border-red-600' : 'border-white'); ?>"
+                     onclick="document.getElementById('mobileMainImage').src = '<?php echo e(asset('storage/' . $image->image_path)); ?>';
+                              document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('border-red-600'));
+                              this.classList.add('border-red-600')">
+                    <img src="<?php echo e(asset('storage/' . $image->image_path)); ?>" class="w-full h-full object-cover">
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="p-4">
+        <!-- Origin & Brand -->
+        <div class="flex justify-between items-start mb-2">
+            <?php if($product->origin): ?>
+            <div class="text-sm text-gray-500">
+                <?php echo e($product->origin->flag_icon ?? '🌏'); ?> <?php echo e($product->origin->country_name); ?>
+
+            </div>
+            <?php endif; ?>
+            <?php if($product->brand): ?>
+            <div class="text-sm text-gray-500">Brand: <?php echo e($product->brand->name); ?></div>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Product Name -->
+        <h1 class="text-xl font-bold text-gray-800 mb-2"><?php echo e($product->name); ?></h1>
+        
+       <!-- Price -->
+        <div class="mb-3">
+            <?php if($product->sale_price && $product->sale_price < $product->regular_price): ?>
+                <span class="text-2xl font-bold text-red-600">LKR <?php echo e(number_format($product->sale_price, 2)); ?></span>
+                <span class="text-gray-400 line-through ml-2">LKR <?php echo e(number_format($product->regular_price, 2)); ?></span>
+                <span class="bg-red-100 text-red-600 px-2 py-0.5 rounded ml-2 text-xs">
+                    -<?php echo e($product->discount_percent); ?>%
+                </span>
+            <?php else: ?>
+                <span class="text-2xl font-bold text-gray-800">LKR <?php echo e(number_format($product->regular_price, 2)); ?></span>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Stock -->
+        <div class="mb-4">
+            <?php if($product->stock > 0): ?>
+                <span class="text-green-600 text-sm">✓ In Stock (<?php echo e($product->stock); ?> available)</span>
+            <?php else: ?>
+                <span class="text-red-600 text-sm">✗ Out of Stock</span>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Quantity Selector -->
+        <div class="flex items-center justify-between mb-6">
+            <span class="text-gray-700">Quantity:</span>
+            <div class="flex border rounded">
+                <button onclick="decrementQuantity()" class="px-4 py-2 hover:bg-gray-100">-</button>
+                <input type="number" id="quantity" value="1" min="1" max="<?php echo e($product->stock); ?>" class="w-16 text-center border-x">
+                <button onclick="incrementQuantity()" class="px-4 py-2 hover:bg-gray-100">+</button>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mb-6">
+            <button onclick="addToCart()" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                Add to Cart
+            </button>
+            <button onclick="toggleWishlist()" class="px-5 py-3 border rounded-lg">
+                <svg id="wishlistIcon" class="w-5 h-5 <?php echo e($inWishlist ? 'fill-red-600 text-red-600' : 'fill-none text-gray-600'); ?>" 
+                     fill="<?php echo e($inWishlist ? '#dc2626' : 'none'); ?>" 
+                     stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Description -->
+        <div class="border-t pt-4 mb-4">
+            <h3 class="font-semibold mb-2">Description</h3>
+            <p class="text-gray-600 text-sm"><?php echo e($product->short_description ?? $product->description); ?></p>
+        </div>
+        
+        <!-- Specifications -->
+        <?php if($product->attributes->count() > 0): ?>
+        <div class="border-t pt-4">
+            <h3 class="font-semibold mb-2">Specifications</h3>
+            <div class="bg-gray-50 rounded-lg p-3 space-y-1">
+                <?php $__currentLoopData = $product->attributes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="flex text-sm">
+                    <span class="w-1/2 text-gray-500"><?php echo e($attr->key); ?>:</span>
+                    <span class="w-1/2 text-gray-700"><?php echo e($attr->value); ?></span>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<script>
+let currentWishlistStatus = <?php echo e($inWishlist ? 'true' : 'false'); ?>;
+
+function incrementQuantity() {
+    let input = document.getElementById('quantity');
+    let max = parseInt(input.getAttribute('max')) || 99;
+    if (parseInt(input.value) < max) {
+        input.value = parseInt(input.value) + 1;
+    }
+}
+
+function decrementQuantity() {
+    let input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+async function addToCart() {
+    let quantity = document.getElementById('quantity').value;
+    
+    try {
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ 
+                product_id: <?php echo e($product->id); ?>, 
+                quantity: quantity 
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            updateCartCount(data.cart_count);
+            showToast('Added to cart!');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error adding to cart', 'error');
+    }
+}
+
+async function toggleWishlist() {
+    if (!<?php echo e(auth()->check() ? 'true' : 'false'); ?>) {
+        showToast('Please login to add to wishlist', 'error');
+        setTimeout(() => {
+            window.location.href = '<?php echo e(route("login")); ?>';
+        }, 1500);
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/wishlist/<?php echo e($product->id); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            currentWishlistStatus = !currentWishlistStatus;
+            const wishlistIcon = document.getElementById('wishlistIcon');
+            if (currentWishlistStatus) {
+                wishlistIcon.classList.add('fill-red-600', 'text-red-600');
+                wishlistIcon.classList.remove('fill-none');
+                showToast('Added to wishlist');
+            } else {
+                wishlistIcon.classList.remove('fill-red-600', 'text-red-600');
+                wishlistIcon.classList.add('fill-none');
+                showToast('Removed from wishlist');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error', 'error');
+    }
+}
+
+function updateCartCount(count) {
+    const cartCount = document.getElementById('mobileCartCount');
+    if (cartCount) {
+        if (count > 0) {
+            cartCount.textContent = count;
+            cartCount.classList.remove('hidden');
+        } else {
+            cartCount.classList.add('hidden');
+        }
+    }
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-20 left-4 right-4 text-center px-4 py-2 rounded-lg text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} z-50`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\ja-lanka-ecommerce\resources\views/mobile/product.blade.php ENDPATH**/ ?>
