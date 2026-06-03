@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Home - Global Flavors Mart'); ?>
 
 <?php $__env->startSection('content'); ?>

@@ -10,7 +10,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\Admin\FlashSaleController;
+use App\Http\Controllers\Admin\FlashSaleController as AdminFlashSaleController;
+use App\Http\Controllers\FlashSaleController;
 
 // ========== DESKTOP ROUTES ==========
 Route::get('/', function () {
@@ -52,18 +53,24 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get('/products', [ProductController::class, 'getProducts'])->name('products');
     Route::get('/search', [ProductController::class, 'search'])->name('search');
     
+    // Banners API
+    Route::get('/banners', [App\Http\Controllers\BannerController::class, 'getActiveBanners']);
+    
+    // Flash Sale API (for frontend)
+    Route::get('/flash-sales', [FlashSaleController::class, 'getActiveBanners']);
+    
+    // Cart API
     Route::get('/cart', [CartController::class, 'getCart'])->name('cart');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
     
+    // Wishlist API
     Route::middleware(['auth'])->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'getWishlist'])->name('wishlist');
         Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     });
-
-    Route::get('/banners', [App\Http\Controllers\BannerController::class, 'getActiveBanners']);
 });
 
 // ========== MOBILE ROUTES ==========
@@ -91,7 +98,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     })->name('account');
 
     Route::get('/sale', function () {
-    return view('mobile.sale');
+        return view('mobile.sale');
     })->name('sale');
 });
 
@@ -126,13 +133,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('products', AdminProductController::class);
 
         // Banner Management
-            Route::resource('banners', BannerController::class);
-            Route::post('banners/update-order', [BannerController::class, 'updateOrder'])->name('banners.update-order');
+        Route::resource('banners', BannerController::class);
+        Route::post('banners/update-order', [BannerController::class, 'updateOrder'])->name('banners.update-order');
 
-            // Flash Sale Routes
-            Route::get('/flash-sales', [App\Http\Controllers\FlashSaleController::class, 'getActiveBanners']);
-            Route::resource('flash-sales', FlashSaleController::class);
-            Route::post('flash-sales/auto-add', [FlashSaleController::class, 'autoAdd'])->name('flash-sales.auto-add');
+        // Flash Sale Management (Admin)
+        Route::resource('flash-sales', AdminFlashSaleController::class);
+        Route::post('flash-sales/auto-add', [AdminFlashSaleController::class, 'autoAdd'])->name('flash-sales.auto-add');
     });
 });
 

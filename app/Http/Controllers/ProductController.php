@@ -60,6 +60,21 @@ class ProductController extends Controller
             $query->whereIn('origin_id', $request->origins);
         }
 
+        // Filter by sale (products with active sale)
+        if ($request->has('has_sale') && $request->has_sale == 'true') {
+            $now = now();
+            $query->whereNotNull('sale_price')
+                ->where('sale_price', '<', 'regular_price')
+                ->where(function($q) use ($now) {
+                    $q->whereNull('sale_start_date')
+                        ->orWhere('sale_start_date', '<=', $now);
+                })
+                ->where(function($q) use ($now) {
+                    $q->whereNull('sale_end_date')
+                        ->orWhere('sale_end_date', '>=', $now);
+                });
+        }
+
         // Sorting
         switch ($request->get('sort', 'newest')) {
             case 'price_low':

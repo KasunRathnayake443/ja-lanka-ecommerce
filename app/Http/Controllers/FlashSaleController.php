@@ -16,12 +16,13 @@ class FlashSaleController extends Controller
             ->orderBy('display_order')
             ->get();
         
-        // Add computed fields
+        // Add computed fields for each product
         foreach ($banners as $banner) {
             if ($banner->product) {
-                $banner->product->has_sale = $banner->product->hasActiveSale();
-                $banner->product->discount_percent = $banner->product->discount_percent;
-                $banner->product->current_price = $banner->product->current_price;
+                $hasActiveSale = $banner->product->hasActiveSale();
+                $banner->product->discount_percent = $hasActiveSale 
+                    ? round((($banner->product->regular_price - $banner->product->sale_price) / $banner->product->regular_price) * 100) 
+                    : 0;
             }
         }
         
