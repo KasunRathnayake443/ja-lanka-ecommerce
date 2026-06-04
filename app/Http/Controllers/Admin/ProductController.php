@@ -12,6 +12,7 @@ use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -41,7 +42,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'regular_price' => 'required|numeric|min:0',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120'
         ]);
 
         // Generate SKU
@@ -51,7 +52,7 @@ class ProductController extends Controller
         $product = Product::create([
             'type' => $request->type,
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
+            'slug' => Str::slug($request->name) . '-' . uniqid(),
             'sku' => $sku,
             'brand_id' => $request->type == 'appliance' ? $request->brand_id : null,
             'category_id' => $request->category_id,
@@ -85,19 +86,29 @@ class ProductController extends Controller
             }
         }
 
-        // Upload images
+        // Upload images - IMPROVED
         if ($request->hasFile('images')) {
             $isMain = true;
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $path,
-                    'is_main' => $isMain,
-                    'display_order' => 0
-                ]);
-                $isMain = false;
+                if ($image && $image->isValid()) {
+                    try {
+                        // Generate unique filename
+                        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('products', $filename, 'public');
+                        
+                        if ($path) {
+                            ProductImage::create([
+                                'product_id' => $product->id,
+                                'image_path' => $path,
+                                'is_main' => $isMain,
+                                'display_order' => 0
+                            ]);
+                            $isMain = false;
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Image upload error: ' . $e->getMessage());
+                    }
+                }
             }
         }
 
@@ -124,12 +135,12 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'regular_price' => 'required|numeric|min:0',
             'new_images' => 'nullable|array',
-            'new_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'new_images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120'
         ]);
 
         $product->update([
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
+            'slug' => Str::slug($request->name) . '-' . $product->id,
             'brand_id' => $product->type == 'appliance' ? $request->brand_id : null,
             'category_id' => $request->category_id,
             'origin_id' => $request->origin_id,
@@ -164,16 +175,26 @@ class ProductController extends Controller
             }
         }
 
-        // Upload new images
+        // Upload new images - IMPROVED
         if ($request->hasFile('new_images')) {
             foreach ($request->file('new_images') as $image) {
-                $path = $image->store('products', 'public');
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $path,
-                    'is_main' => false,
-                    'display_order' => 0
-                ]);
+                if ($image && $image->isValid()) {
+                    try {
+                        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('products', $filename, 'public');
+                        
+                        if ($path) {
+                            ProductImage::create([
+                                'product_id' => $product->id,
+                                'image_path' => $path,
+                                'is_main' => false,
+                                'display_order' => 0
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Image upload error: ' . $e->getMessage());
+                    }
+                }
             }
         }
 
@@ -182,7 +203,11 @@ class ProductController extends Controller
             foreach ($request->delete_images as $imageId) {
                 $image = ProductImage::find($imageId);
                 if ($image) {
-                    Storage::disk('public')->delete($image->image_path);
+                    // Delete file from storage
+                    $filePath = storage_path('app/public/' . $image->image_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
                     $image->delete();
                 }
             }
@@ -204,7 +229,10 @@ class ProductController extends Controller
         
         // Delete all images from storage
         foreach ($product->images as $image) {
-            Storage::disk('public')->delete($image->image_path);
+            $filePath = storage_path('app/public/' . $image->image_path);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
         
         $product->delete();

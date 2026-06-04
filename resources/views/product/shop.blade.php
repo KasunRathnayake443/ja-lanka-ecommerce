@@ -39,8 +39,10 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   padding: 2.5rem 0 2rem;
 }
 .shop-header-inner {
-  max-width: 1320px; margin: 0 auto; padding: 0 5vw;
+  max-width: 1400px; margin: 0 auto; padding: 0 5vw;
   display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 .shop-eyebrow {
   font-size: 0.65rem; font-weight: 600; letter-spacing: 0.22em;
@@ -60,8 +62,8 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 
 /* ── Layout ── */
 .shop-layout {
-  max-width: 1320px; margin: 0 auto; padding: 2.5rem 5vw;
-  display: grid; grid-template-columns: 260px 1fr; gap: 2.5rem;
+  max-width: 1400px; margin: 0 auto; padding: 2.5rem 5vw;
+  display: grid; grid-template-columns: 280px 1fr; gap: 2.5rem;
   align-items: start;
 }
 
@@ -70,11 +72,15 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   position: sticky; top: 100px;
   background: var(--white);
   border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  overflow: hidden;
 }
 .sidebar-header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-soft);
   display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .sidebar-title {
   font-size: 0.67rem; font-weight: 700; letter-spacing: 0.2em;
@@ -117,7 +123,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 .radio-pill label:hover { background: var(--surface); }
 
 /* Checkbox list */
-.check-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.check-list { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
 .check-list::-webkit-scrollbar { width: 3px; }
 .check-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 .check-item { display: flex; align-items: center; gap: 8px; }
@@ -132,16 +138,43 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 .check-item label:hover { color: var(--ink); }
 .check-item input:checked + label { color: var(--amber); font-weight: 500; }
 
-/* Price inputs */
-.price-row { display: flex; gap: 8px; align-items: center; }
+/* Price inputs - FIXED */
+.price-range {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.price-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.price-input-label {
+  font-size: 0.65rem;
+  color: var(--ash);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 .price-input {
-  flex: 1; border: 1px solid var(--border); background: var(--off-white);
-  padding: 8px 10px; font-family: var(--font-body); font-size: 0.82rem;
-  color: var(--ink); outline: none; transition: border-color 0.2s;
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--off-white);
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+  border-radius: 2px;
 }
 .price-input:focus { border-color: var(--amber); }
 .price-input::placeholder { color: var(--ash-light); }
-.price-sep { font-size: 0.75rem; color: var(--ash-light); flex-shrink: 0; }
 
 /* Sort select */
 .sort-select {
@@ -151,20 +184,24 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238C857A'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 10px center;
   transition: border-color 0.2s;
+  border-radius: 2px;
 }
 .sort-select:focus { border-color: var(--amber); }
 
 /* Active filter tags */
 #active-tags {
   display: flex; flex-wrap: wrap; gap: 6px;
-  padding: 0 1.5rem 1rem; min-height: 0;
+  padding: 0.75rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-soft);
+  min-height: 50px;
 }
 .filter-tag {
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--amber-tint); border: 1px solid rgba(184,134,11,0.2);
-  color: var(--amber); font-size: 0.65rem; font-weight: 600;
+  color: var(--amber); font-size: 0.62rem; font-weight: 600;
   letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px;
   cursor: pointer; transition: background 0.15s;
+  border-radius: 2px;
 }
 .filter-tag:hover { background: #fcefd0; }
 .filter-tag span { font-size: 0.8rem; line-height: 1; }
@@ -173,6 +210,8 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 .products-topbar {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 .topbar-left {
   font-family: var(--font-display); font-size: 1.5rem; font-weight: 300;
@@ -192,13 +231,14 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   border: 1px solid var(--border-soft);
   overflow: hidden;
   transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+  border-radius: 2px;
 }
 .p-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-hover);
 }
 .p-card-img {
-  position: relative; height: 210px; overflow: hidden; background: var(--surface);
+  position: relative; height: 220px; overflow: hidden; background: var(--surface);
 }
 .p-card-img img {
   width: 100%; height: 100%; object-fit: cover;
@@ -210,12 +250,14 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   background: var(--amber-tint); color: var(--amber);
   border: 1px solid rgba(184,134,11,0.2);
   font-size: 0.6rem; font-weight: 700; padding: 3px 8px;
+  border-radius: 2px;
 }
 .badge-sale-strip {
   position: absolute; top: 10px; left: 10px; z-index: 2;
   background: var(--spice); color: #fff;
   font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
   text-transform: uppercase; padding: 3px 8px;
+  border-radius: 2px;
 }
 .p-card-body { padding: 1.1rem; }
 .p-card-origin {
@@ -230,6 +272,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 }
 .p-card-prices {
   margin-top: 0.6rem; display: flex; align-items: baseline; gap: 7px;
+  flex-wrap: wrap;
 }
 .p-price-main {
   font-family: var(--font-display); font-size: 1.15rem;
@@ -244,6 +287,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--ink-mid);
   transition: background 0.25s, border-color 0.25s, color 0.25s;
+  border-radius: 2px;
 }
 .btn-atc:hover { background: var(--ink); border-color: var(--ink); color: var(--white); }
 
@@ -274,23 +318,51 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   border-radius: 50%; animation: spin 0.7s linear infinite;
 }
 
-/* Toast */
-.gfm-toast {
-  position: fixed; bottom: 2rem; right: 2rem;
-  background: var(--ink); color: var(--white);
-  padding: 12px 20px; font-size: 0.78rem; font-weight: 500;
-  border-left: 3px solid var(--amber-light); z-index: 99999;
-  transform: translateY(10px); opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
+/* Toast - matching home page */
+.notif {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  z-index: 9999;
+  transition: opacity 0.3s;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
-.gfm-toast.show { opacity: 1; transform: translateY(0); }
-.gfm-toast.error { border-left-color: var(--spice); }
+.notif--success { background: #2d7a4a; }
+.notif--error { background: var(--spice); }
+
+/* State mini text */
+.state-mini {
+  font-size: 0.78rem;
+  color: var(--ash-light);
+  padding: 4px 0;
+}
 
 /* Responsive */
-@media (max-width: 1100px) { #productsGrid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 860px)  { .shop-layout { grid-template-columns: 1fr; } .sidebar { position: static; } }
-@media (max-width: 540px)  { #productsGrid { grid-template-columns: repeat(2,1fr); gap: 0.9rem; } }
+@media (max-width: 1200px) { 
+  #productsGrid { grid-template-columns: repeat(2, 1fr); } 
+}
+@media (max-width: 900px)  { 
+  .shop-layout { grid-template-columns: 1fr; } 
+  .sidebar { position: static; margin-bottom: 1.5rem; }
+  .shop-header-inner { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 640px)  { 
+  #productsGrid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .filter-section { padding: 1rem; }
+  .sidebar-header { padding: 1rem; }
+  #active-tags { padding: 0.75rem 1rem; }
+  .price-row { flex-direction: column; gap: 8px; }
+  .price-input-group { width: 100%; }
+}
+@media (max-width: 480px) { 
+  #productsGrid { grid-template-columns: 1fr; }
+  .p-card-img { height: 200px; }
+}
 </style>
 
 <!-- Page Header -->
@@ -359,13 +431,21 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
       </div>
     </div>
 
-    <!-- Price Range -->
+    <!-- Price Range - FIXED LAYOUT -->
     <div class="filter-section">
       <span class="filter-label">Price Range (LKR)</span>
-      <div class="price-row">
-        <input type="number" id="minPrice" placeholder="Min" class="price-input">
-        <span class="price-sep">–</span>
-        <input type="number" id="maxPrice" placeholder="Max" class="price-input">
+      <div class="price-range">
+        <div class="price-row">
+          <div class="price-input-group">
+            <span class="price-input-label">Min</span>
+            <input type="number" id="minPrice" placeholder="0" class="price-input" value="">
+          </div>
+          <span class="price-sep" style="align-self: flex-end; margin-bottom: 8px;">—</span>
+          <div class="price-input-group">
+            <span class="price-input-label">Max</span>
+            <input type="number" id="maxPrice" placeholder="Any" class="price-input" value="">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -386,8 +466,8 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
     <div class="products-topbar">
       <div>
         <div class="topbar-left">The <em>Collection</em></div>
-        <div class="topbar-count" id="topbarCount">Loading products…</div>
       </div>
+      <div class="topbar-count" id="topbarCount">Loading products…</div>
     </div>
 
     <div id="productsGrid">
@@ -408,9 +488,6 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 
 </div>
 
-<!-- Toast -->
-<div id="gfm-toast" class="gfm-toast"></div>
-
 <script>
 /* ─── State ─── */
 let currentPage = 1, isLoading = false, hasMore = true;
@@ -419,47 +496,23 @@ let currentFilters = { type:'', categories:[], brands:[], origins:[], min_price:
 /* ─── Init ─── */
 loadFilters();
 loadProducts();
-applyUrlFilters();
-
-/* ─── URL filters ─── */
-function applyUrlFilters() {
-  const p = new URLSearchParams(window.location.search);
-  if (p.get('type'))     { currentFilters.type = p.get('type'); }
-  if (p.get('sort'))     { currentFilters.sort = p.get('sort'); document.getElementById('sortBy').value = p.get('sort'); }
-  if (p.get('has_sale')) { /* handled server-side */ }
-}
 
 /* ─── Filters ─── */
 async function loadFilters() {
   try {
     const data = await fetch('/api/products/filters').then(r=>r.json());
 
-    document.getElementById('categories-filter').innerHTML =
-      data.categories.length
-        ? data.categories.map(c=>`
-          <div class="check-item">
-            <input type="checkbox" id="cat-${c.id}" value="${c.id}" class="category-filter">
-            <label for="cat-${c.id}">${escHtml(c.name)}</label>
-          </div>`).join('')
-        : '<p style="font-size:0.78rem;color:var(--ash-light)">None available</p>';
+    document.getElementById('categories-filter').innerHTML = data.categories.length
+      ? data.categories.map(c=>`<div class="check-item"><input type="checkbox" id="cat-${c.id}" value="${c.id}" class="category-filter"><label for="cat-${c.id}">${escHtml(c.name)}</label></div>`).join('')
+      : '<div class="state-mini">No categories</div>';
 
-    document.getElementById('brands-filter').innerHTML =
-      data.brands.length
-        ? data.brands.map(b=>`
-          <div class="check-item">
-            <input type="checkbox" id="br-${b.id}" value="${b.id}" class="brand-filter">
-            <label for="br-${b.id}">${escHtml(b.name)}</label>
-          </div>`).join('')
-        : '<p style="font-size:0.78rem;color:var(--ash-light)">None available</p>';
+    document.getElementById('brands-filter').innerHTML = data.brands.length
+      ? data.brands.map(b=>`<div class="check-item"><input type="checkbox" id="br-${b.id}" value="${b.id}" class="brand-filter"><label for="br-${b.id}">${escHtml(b.name)}</label></div>`).join('')
+      : '<div class="state-mini">No brands</div>';
 
-    document.getElementById('origins-filter').innerHTML =
-      data.origins.length
-        ? data.origins.map(o=>`
-          <div class="check-item">
-            <input type="checkbox" id="or-${o.id}" value="${o.id}" class="origin-filter">
-            <label for="or-${o.id}">${o.flag_icon||'🌏'} ${escHtml(o.country_name)}</label>
-          </div>`).join('')
-        : '<p style="font-size:0.78rem;color:var(--ash-light)">None available</p>';
+    document.getElementById('origins-filter').innerHTML = data.origins.length
+      ? data.origins.map(o=>`<div class="check-item"><input type="checkbox" id="or-${o.id}" value="${o.id}" class="origin-filter"><label for="or-${o.id}">${o.flag_icon||'🌏'} ${escHtml(o.country_name)}</label></div>`).join('')
+      : '<div class="state-mini">No origins</div>';
 
     attachListeners();
   } catch(e) { console.error(e); }
@@ -493,11 +546,10 @@ function attachListeners() {
   document.getElementById('resetFilters').addEventListener('click', resetAllFilters);
 }
 
-/* ─── Active filter tags ─── */
 function renderTags() {
   const wrap = document.getElementById('active-tags');
   const tags = [];
-  if (currentFilters.type) tags.push({ label: currentFilters.type, clear: ()=>{ currentFilters.type=''; document.querySelector('.filter-radio[value=""]').checked=true; }});
+  if (currentFilters.type) tags.push({ label: currentFilters.type === 'food' ? 'Food' : (currentFilters.type === 'appliance' ? 'Appliances' : currentFilters.type), clear: ()=>{ currentFilters.type=''; document.querySelector('.filter-radio[value=""]').checked=true; }});
   if (currentFilters.min_price) tags.push({ label: `Min LKR ${Number(currentFilters.min_price).toLocaleString()}`, clear:()=>{ currentFilters.min_price=''; document.getElementById('minPrice').value=''; }});
   if (currentFilters.max_price) tags.push({ label: `Max LKR ${Number(currentFilters.max_price).toLocaleString()}`, clear:()=>{ currentFilters.max_price=''; document.getElementById('maxPrice').value=''; }});
   document.querySelectorAll('.category-filter:checked').forEach(c => tags.push({ label: c.nextElementSibling?.textContent||'', clear:()=>{ c.checked=false; currentFilters.categories=currentFilters.categories.filter(v=>v!==c.value); }}));
@@ -505,7 +557,7 @@ function renderTags() {
   document.querySelectorAll('.origin-filter:checked').forEach(c => tags.push({ label: c.nextElementSibling?.textContent||'', clear:()=>{ c.checked=false; currentFilters.origins=currentFilters.origins.filter(v=>v!==c.value); }}));
 
   if (!tags.length) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = tags.map((_,i)=>`<div class="filter-tag" data-idx="${i}">${_.label} <span>×</span></div>`).join('');
+  wrap.innerHTML = tags.map((t,i)=>`<div class="filter-tag" data-idx="${i}">${t.label} <span>×</span></div>`).join('');
   wrap.querySelectorAll('.filter-tag').forEach((el, i) => {
     el.addEventListener('click', ()=>{ tags[i].clear(); resetAndLoad(); renderTags(); });
   });
@@ -518,13 +570,13 @@ function resetAllFilters() {
   document.getElementById('maxPrice').value = '';
   document.getElementById('sortBy').value = 'newest';
   currentFilters = { type:'', categories:[], brands:[], origins:[], min_price:'', max_price:'', sort:'newest' };
-  document.getElementById('active-tags').innerHTML = '';
+  renderTags();
   resetAndLoad();
 }
 
 function resetAndLoad() {
   currentPage = 1; hasMore = true;
-  document.getElementById('productsGrid').innerHTML = `<div class="state-box"><div class="loader"></div><p>Loading…</p></div>`;
+  document.getElementById('productsGrid').innerHTML = `<div class="state-box"><div class="loader"></div><p>Loading products…</p></div>`;
   document.getElementById('noMoreProducts').classList.add('hidden');
   loadProducts();
 }
@@ -567,8 +619,7 @@ async function loadProducts() {
 
   } catch(e) {
     console.error(e);
-    document.getElementById('productsGrid').innerHTML =
-      `<div class="state-box"><p style="color:var(--spice)">Failed to load products. Please refresh.</p></div>`;
+    document.getElementById('productsGrid').innerHTML = `<div class="state-box"><p style="color:var(--spice)">Failed to load products. Please refresh.</p></div>`;
   } finally {
     isLoading = false;
     document.getElementById('loadMoreStrip').classList.add('hidden');
@@ -612,9 +663,11 @@ function renderProducts(products, pageToLoad) {
           ${originHtml}
           <div class="p-card-name">${escHtml(p.name)}</div>
           <div class="p-card-prices">${priceHtml}</div>
-          <button class="btn-atc" onclick="event.preventDefault();addToCart(${p.id})">Add to Cart</button>
         </div>
-      </a>`;
+      </a>
+      <div class="p-card-body" style="padding-top:0">
+        <button class="btn-atc" onclick="event.preventDefault();addToCart(${p.id})">Add to Cart</button>
+      </div>`;
     grid.appendChild(card);
   });
 }
@@ -632,25 +685,27 @@ async function addToCart(id) {
       headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},
       body: JSON.stringify({ product_id:id, quantity:1 })
     }).then(r=>r.json());
-    if (data.success) { updateCartCount(data.cart_count); showToast('Added to cart'); }
-  } catch(e) { showToast('Error adding to cart', true); }
+    if (data.success) { updateCartCount(data.cart_count); showNotification('Added to cart', 'success'); }
+  } catch(e) { showNotification('Error adding to cart', 'error'); }
 }
+
 function updateCartCount(n) {
   const el = document.getElementById('cartCount');
   if (!el) return;
   n > 0 ? (el.textContent=n, el.classList.remove('hidden')) : el.classList.add('hidden');
 }
-function showToast(msg, err=false) {
-  const t = document.getElementById('gfm-toast');
-  t.textContent = msg;
-  t.className = 'gfm-toast'+(err?' error':'');
-  requestAnimationFrame(()=>t.classList.add('show'));
-  setTimeout(()=>t.classList.remove('show'), 3200);
+
+function showNotification(msg, type = 'success') {
+  const n = document.createElement('div');
+  n.className = `notif notif--${type}`;
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 2800);
 }
 
 /* ─── Infinite scroll ─── */
 window.addEventListener('scroll', ()=>{
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 600) loadProducts();
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) loadProducts();
 }, { passive:true });
 </script>
 
