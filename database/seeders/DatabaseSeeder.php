@@ -10,34 +10,34 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->command->info('🌱 Starting database seeding...');
-        
+
         // Run seeders in correct order
         $this->call(CategorySeeder::class);
         $this->call(BrandSeeder::class);
         $this->call(OriginSeeder::class);
-        
+
         // Now seed products
         $this->seedProducts();
-        
+
         // Seed flash sale banners
         $this->seedFlashSaleBanners();
-        
+
         // Create admin user if not exists
         $this->seedAdmin();
-        
+
         $this->command->info('✅ Database seeding completed!');
     }
-    
+
     private function seedProducts()
     {
         $this->command->info('📦 Seeding products...');
-        
+
         // Get IDs
         $japanId = DB::table('origins')->where('country_name', 'Japan')->value('id');
         $koreaId = DB::table('origins')->where('country_name', 'Korea')->value('id');
         $italyId = DB::table('origins')->where('country_name', 'Italy')->value('id');
         $chinaId = DB::table('origins')->where('country_name', 'China')->value('id');
-        
+
         $japaneseCatId = DB::table('categories')->where('slug', 'japanese')->value('id');
         $koreanCatId = DB::table('categories')->where('slug', 'korean')->value('id');
         $italianCatId = DB::table('categories')->where('slug', 'italian')->value('id');
@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
         $microwaveCatId = DB::table('categories')->where('slug', 'microwaves')->value('id');
         $airFryerCatId = DB::table('categories')->where('slug', 'air-fryers')->value('id');
         $blenderCatId = DB::table('categories')->where('slug', 'blenders')->value('id');
-        
+
         // Get brand IDs
         $zojirushiId = DB::table('brands')->where('slug', 'zojirushi')->value('id');
         $tigerId = DB::table('brands')->where('slug', 'tiger')->value('id');
@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
         $samyangId = DB::table('brands')->where('slug', 'samyang')->value('id');
         $barillaId = DB::table('brands')->where('slug', 'barilla')->value('id');
         $lavazzaId = DB::table('brands')->where('slug', 'lavazza')->value('id');
-        
+
         $products = [
             // Japanese Food
             ['type' => 'food', 'name' => 'Japanese Matcha Green Tea', 'slug' => 'japanese-matcha-green-tea', 'sku' => 'JPN-FOOD-001', 'brand_id' => $itoEnId, 'category_id' => $japaneseCatId, 'origin_id' => $japanId, 'short_description' => 'Premium matcha from Uji, Japan', 'description' => 'Authentic Japanese matcha green tea powder.', 'regular_price' => 2990, 'sale_price' => 2490, 'stock' => 50],
@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
             ['type' => 'appliance', 'name' => 'Philips Air Fryer', 'slug' => 'philips-air-fryer', 'sku' => 'APL-004', 'brand_id' => $philipsId, 'category_id' => $airFryerCatId, 'origin_id' => null, 'short_description' => 'Air fryer', 'description' => 'Healthy frying.', 'regular_price' => 39900, 'sale_price' => null, 'stock' => 20],
             ['type' => 'appliance', 'name' => 'Ninja Blender', 'slug' => 'ninja-blender', 'sku' => 'APL-005', 'brand_id' => null, 'category_id' => $blenderCatId, 'origin_id' => null, 'short_description' => 'Professional blender', 'description' => '1000W blender.', 'regular_price' => 24900, 'sale_price' => 19900, 'stock' => 12],
         ];
-        
+
         foreach ($products as $product) {
             $productId = DB::table('products')->insertGetId([
                 'type' => $product['type'],
@@ -104,7 +104,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            
+
             DB::table('inventories')->insert([
                 'product_id' => $productId,
                 'quantity_on_hand' => $product['stock'],
@@ -115,16 +115,16 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
-        $this->command->info('✅ Products seeded: ' . DB::table('products')->count());
+
+        $this->command->info('✅ Products seeded: '.DB::table('products')->count());
     }
-    
+
     private function seedFlashSaleBanners()
     {
         $this->command->info('🔥 Seeding flash sale banners...');
-        
+
         $saleProducts = DB::table('products')->whereNotNull('sale_price')->get();
-        
+
         $displayOrder = 0;
         foreach ($saleProducts as $product) {
             DB::table('flash_sale_banners')->insert([
@@ -138,15 +138,15 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
-        $this->command->info('✅ Flash sale banners seeded: ' . DB::table('flash_sale_banners')->count());
+
+        $this->command->info('✅ Flash sale banners seeded: '.DB::table('flash_sale_banners')->count());
     }
-    
+
     private function seedAdmin()
     {
         $exists = DB::table('admins')->where('email', 'admin@jalanka.com')->exists();
-        
-        if (!$exists) {
+
+        if (! $exists) {
             DB::table('admins')->insert([
                 'name' => 'Super Admin',
                 'email' => 'admin@jalanka.com',

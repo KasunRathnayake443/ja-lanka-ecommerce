@@ -12,6 +12,7 @@ class BannerController extends Controller
     public function index()
     {
         $banners = Banner::orderBy('display_order')->get();
+
         return view('admin.banners.index', compact('banners'));
     }
 
@@ -47,6 +48,7 @@ class BannerController extends Controller
     public function edit($id)
     {
         $banner = Banner::findOrFail($id);
+
         return view('admin.banners.edit', compact('banner'));
     }
 
@@ -100,6 +102,7 @@ class BannerController extends Controller
         foreach ($request->orders as $order) {
             Banner::where('id', $order['id'])->update(['display_order' => $order['position']]);
         }
+
         return response()->json(['success' => true]);
     }
 }

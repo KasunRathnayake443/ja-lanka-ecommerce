@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -18,7 +17,7 @@ class CategorySeeder extends Seeder
             ['name' => 'Chinese', 'slug' => 'chinese', 'type' => 'food', 'display_order' => 4],
             ['name' => 'Thai', 'slug' => 'thai', 'type' => 'food', 'display_order' => 5],
             ['name' => 'Indian', 'slug' => 'indian', 'type' => 'food', 'display_order' => 6],
-            
+
             // Appliance Categories
             ['name' => 'Rice Cookers', 'slug' => 'rice-cookers', 'type' => 'appliance', 'display_order' => 7],
             ['name' => 'Electric Kettles', 'slug' => 'electric-kettles', 'type' => 'appliance', 'display_order' => 8],
@@ -39,7 +38,7 @@ class CategorySeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
-        $this->command->info('✅ Categories seeded: ' . DB::table('categories')->count());
+
+        $this->command->info('✅ Categories seeded: '.DB::table('categories')->count());
     }
 }

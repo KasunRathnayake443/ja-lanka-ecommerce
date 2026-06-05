@@ -24,14 +24,14 @@ class AuthController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-            
+
             // Update last login info
             $admin = Auth::guard('admin')->user();
             $admin->update([
                 'last_login_at' => now(),
                 'last_login_ip' => $request->ip(),
             ]);
-            
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -46,7 +46,7 @@ class AuthController extends Controller
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect()->route('admin.login');
     }
 }

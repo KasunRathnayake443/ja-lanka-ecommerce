@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\Product;
 use App\Models\FlashSaleBanner;
+use App\Models\Product;
 
 class ProductObserver
 {
@@ -27,8 +27,8 @@ class ProductObserver
     {
         $hasActiveSale = $product->hasActiveSale();
         $existingBanner = FlashSaleBanner::where('product_id', $product->id)->first();
-        
-        if ($hasActiveSale && !$existingBanner) {
+
+        if ($hasActiveSale && ! $existingBanner) {
             // Auto-create banner (inactive until admin approves)
             FlashSaleBanner::create([
                 'product_id' => $product->id,
@@ -36,7 +36,7 @@ class ProductObserver
                 'is_manual' => false,
                 'display_order' => 0,
             ]);
-        } elseif (!$hasActiveSale && $existingBanner && !$existingBanner->is_manual) {
+        } elseif (! $hasActiveSale && $existingBanner && ! $existingBanner->is_manual) {
             // Auto-delete banner only if it wasn't manually created
             $existingBanner->delete();
         }

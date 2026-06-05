@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\RedirectIfNotAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,11 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);
-        
+
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'guest.admin' => \App\Http\Middleware\RedirectIfNotAdmin::class,
+            'admin' => AdminMiddleware::class,
+            'guest' => RedirectIfAuthenticated::class,
+            'guest.admin' => RedirectIfNotAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

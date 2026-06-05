@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Admin;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
@@ -17,7 +17,7 @@ class AdminSeeder extends Seeder
             'is_super_admin' => true,
             'is_active' => true,
         ]);
-        
+
         $this->command->info('Admin user created: admin@jalanka.com / password123');
     }
 }

@@ -28,7 +28,7 @@ class OriginSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
-        $this->command->info('✅ Origins seeded: ' . DB::table('origins')->count());
+
+        $this->command->info('✅ Origins seeded: '.DB::table('origins')->count());
     }
 }

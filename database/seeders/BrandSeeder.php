@@ -36,7 +36,7 @@ class BrandSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
-        $this->command->info('✅ Brands seeded: ' . DB::table('brands')->count());
+
+        $this->command->info('✅ Brands seeded: '.DB::table('brands')->count());
     }
 }

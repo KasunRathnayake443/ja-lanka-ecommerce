@@ -227,8 +227,10 @@ async function toggleWishlist() {
         });
         
         const data = await response.json();
+        console.log('Wishlist response:', data);
+        
         if (data.success) {
-            currentWishlistStatus = !currentWishlistStatus;
+            currentWishlistStatus = data.in_wishlist;
             const wishlistBtn = document.getElementById('wishlistBtn').querySelector('svg');
             if (currentWishlistStatus) {
                 wishlistBtn.classList.add('fill-red-600', 'text-red-600');

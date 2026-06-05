@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Banner extends Model
 {
     protected $fillable = [
-        'title', 'subtitle', 'image', 'button_text', 'button_link', 
-        'display_order', 'is_active'
+        'title', 'subtitle', 'image', 'button_text', 'button_link',
+        'display_order', 'is_active',
     ];
 
     protected $casts = [
@@ -18,6 +18,6 @@ class Banner extends Model
 
     public function getImageUrlAttribute()
     {
-        return asset('storage/' . $this->image);
+        return asset('storage/'.$this->image);
     }
 }

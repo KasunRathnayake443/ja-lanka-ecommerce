@@ -14,16 +14,16 @@ class FlashSaleController extends Controller
         $banners = FlashSaleBanner::with('product')
             ->orderBy('display_order')
             ->get();
-        
+
         return view('admin.flash-sales.index', compact('banners'));
     }
 
     public function create()
     {
         $existingIds = FlashSaleBanner::pluck('product_id')->toArray();
-        
+
         $products = Product::whereNotIn('id', $existingIds)->get();
-        
+
         return view('admin.flash-sales.create', compact('products'));
     }
 
@@ -49,6 +49,7 @@ class FlashSaleController extends Controller
     public function edit($id)
     {
         $banner = FlashSaleBanner::with('product')->findOrFail($id);
+
         return view('admin.flash-sales.edit', compact('banner'));
     }
 

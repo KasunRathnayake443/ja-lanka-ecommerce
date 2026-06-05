@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Origin;
+use App\Models\Product;
 use App\Models\Wishlist;
-use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +16,7 @@ class ProductController extends Controller
     public function getProducts(Request $request)
     {
         $query = Product::where('is_active', true)
-            ->with(['images' => function($q) {
+            ->with(['images' => function ($q) {
                 $q->where('is_main', true);
             }, 'origin', 'category', 'brand']);
 
@@ -65,11 +64,11 @@ class ProductController extends Controller
             $now = now();
             $query->whereNotNull('sale_price')
                 ->where('sale_price', '<', 'regular_price')
-                ->where(function($q) use ($now) {
+                ->where(function ($q) use ($now) {
                     $q->whereNull('sale_start_date')
                         ->orWhere('sale_start_date', '<=', $now);
                 })
-                ->where(function($q) use ($now) {
+                ->where(function ($q) use ($now) {
                     $q->whereNull('sale_end_date')
                         ->orWhere('sale_end_date', '>=', $now);
                 });
@@ -93,18 +92,18 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(12);
-        
+
         // Add sale price and discount calculation
         foreach ($products as $product) {
             // Check if sale is active
-            $hasActiveSale = $product->sale_price && 
+            $hasActiveSale = $product->sale_price &&
                              $product->sale_price < $product->regular_price &&
-                             ($product->sale_start_date <= now() || !$product->sale_start_date) &&
-                             ($product->sale_end_date >= now() || !$product->sale_end_date);
-            
+                             ($product->sale_start_date <= now() || ! $product->sale_start_date) &&
+                             ($product->sale_end_date >= now() || ! $product->sale_end_date);
+
             $product->current_price = $hasActiveSale ? $product->sale_price : $product->regular_price;
-            $product->discount_percent = $hasActiveSale 
-                ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100) 
+            $product->discount_percent = $hasActiveSale
+                ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100)
                 : 0;
             $product->has_sale = $hasActiveSale;
         }
@@ -121,14 +120,14 @@ class ProductController extends Controller
             ->firstOrFail();
 
         // Check if sale is active
-        $hasActiveSale = $product->sale_price && 
+        $hasActiveSale = $product->sale_price &&
                          $product->sale_price < $product->regular_price &&
-                         ($product->sale_start_date <= now() || !$product->sale_start_date) &&
-                         ($product->sale_end_date >= now() || !$product->sale_end_date);
-        
+                         ($product->sale_start_date <= now() || ! $product->sale_start_date) &&
+                         ($product->sale_end_date >= now() || ! $product->sale_end_date);
+
         $product->current_price = $hasActiveSale ? $product->sale_price : $product->regular_price;
-        $product->discount_percent = $hasActiveSale 
-            ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100) 
+        $product->discount_percent = $hasActiveSale
+            ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100)
             : 0;
         $product->has_sale = $hasActiveSale;
         $product->stock = $product->inventory->quantity_on_hand ?? 0;
@@ -137,21 +136,21 @@ class ProductController extends Controller
         $related = Product::where('type', $product->type)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
-            ->with(['images' => function($q) {
+            ->with(['images' => function ($q) {
                 $q->where('is_main', true);
             }])
             ->limit(4)
             ->get();
-            
+
         // Also add sale info to related products
         foreach ($related as $item) {
-            $itemHasSale = $item->sale_price && 
+            $itemHasSale = $item->sale_price &&
                            $item->sale_price < $item->regular_price &&
-                           ($item->sale_start_date <= now() || !$item->sale_start_date) &&
-                           ($item->sale_end_date >= now() || !$item->sale_end_date);
+                           ($item->sale_start_date <= now() || ! $item->sale_start_date) &&
+                           ($item->sale_end_date >= now() || ! $item->sale_end_date);
             $item->current_price = $itemHasSale ? $item->sale_price : $item->regular_price;
-            $item->discount_percent = $itemHasSale 
-                ? round((($item->regular_price - $item->sale_price) / $item->regular_price) * 100) 
+            $item->discount_percent = $itemHasSale
+                ? round((($item->regular_price - $item->sale_price) / $item->regular_price) * 100)
                 : 0;
         }
 
@@ -175,14 +174,14 @@ class ProductController extends Controller
             ->firstOrFail();
 
         // Check if sale is active
-        $hasActiveSale = $product->sale_price && 
+        $hasActiveSale = $product->sale_price &&
                          $product->sale_price < $product->regular_price &&
-                         ($product->sale_start_date <= now() || !$product->sale_start_date) &&
-                         ($product->sale_end_date >= now() || !$product->sale_end_date);
-        
+                         ($product->sale_start_date <= now() || ! $product->sale_start_date) &&
+                         ($product->sale_end_date >= now() || ! $product->sale_end_date);
+
         $product->current_price = $hasActiveSale ? $product->sale_price : $product->regular_price;
-        $product->discount_percent = $hasActiveSale 
-            ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100) 
+        $product->discount_percent = $hasActiveSale
+            ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100)
             : 0;
         $product->has_sale = $hasActiveSale;
         $product->stock = $product->inventory->quantity_on_hand ?? 0;
@@ -191,21 +190,21 @@ class ProductController extends Controller
         $related = Product::where('type', $product->type)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
-            ->with(['images' => function($q) {
+            ->with(['images' => function ($q) {
                 $q->where('is_main', true);
             }])
             ->limit(4)
             ->get();
-            
+
         // Also add sale info to related products
         foreach ($related as $item) {
-            $itemHasSale = $item->sale_price && 
+            $itemHasSale = $item->sale_price &&
                            $item->sale_price < $item->regular_price &&
-                           ($item->sale_start_date <= now() || !$item->sale_start_date) &&
-                           ($item->sale_end_date >= now() || !$item->sale_end_date);
+                           ($item->sale_start_date <= now() || ! $item->sale_start_date) &&
+                           ($item->sale_end_date >= now() || ! $item->sale_end_date);
             $item->current_price = $itemHasSale ? $item->sale_price : $item->regular_price;
-            $item->discount_percent = $itemHasSale 
-                ? round((($item->regular_price - $item->sale_price) / $item->regular_price) * 100) 
+            $item->discount_percent = $itemHasSale
+                ? round((($item->regular_price - $item->sale_price) / $item->regular_price) * 100)
                 : 0;
         }
 
@@ -234,28 +233,28 @@ class ProductController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q', '');
-        
+
         if (strlen($query) < 2) {
             return response()->json([]);
         }
-        
+
         $products = Product::where('is_active', true)
             ->where('name', 'like', "%{$query}%")
-            ->with(['images' => function($q) {
+            ->with(['images' => function ($q) {
                 $q->where('is_main', true);
             }])
             ->limit(10)
             ->get();
-            
+
         // Add sale info to search results
         foreach ($products as $product) {
-            $hasActiveSale = $product->sale_price && 
+            $hasActiveSale = $product->sale_price &&
                              $product->sale_price < $product->regular_price &&
-                             ($product->sale_start_date <= now() || !$product->sale_start_date) &&
-                             ($product->sale_end_date >= now() || !$product->sale_end_date);
+                             ($product->sale_start_date <= now() || ! $product->sale_start_date) &&
+                             ($product->sale_end_date >= now() || ! $product->sale_end_date);
             $product->current_price = $hasActiveSale ? $product->sale_price : $product->regular_price;
-            $product->discount_percent = $hasActiveSale 
-                ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100) 
+            $product->discount_percent = $hasActiveSale
+                ? round((($product->regular_price - $product->sale_price) / $product->regular_price) * 100)
                 : 0;
         }
 

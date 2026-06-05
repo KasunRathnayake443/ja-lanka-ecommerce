@@ -1,17 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\StoreManagementController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\FoodController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FlashSaleController as AdminFlashSaleController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\StoreManagementController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\FlashSaleController;
+use App\Http\Controllers\FoodController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\User\AccountController;
+use App\Http\Controllers\WishlistController;
+use Illuminate\Support\Facades\Route;
 
 // ========== DESKTOP ROUTES ==========
 Route::get('/', function () {
@@ -36,11 +37,15 @@ Route::get('/cart', function () {
     return view('cart');
 })->name('cart');
 
+Route::get('/sale', function () {
+    return view('product.sale');
+})->name('sale');
+
 Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
     Route::get('/dashboard', function () {
         return view('account.dashboard');
     })->name('dashboard');
-    
+
     Route::get('/orders', function () {
         return view('account.orders');
     })->name('orders');
@@ -52,21 +57,21 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get('/products/filters', [ProductController::class, 'getFilters'])->name('products.filters');
     Route::get('/products', [ProductController::class, 'getProducts'])->name('products');
     Route::get('/search', [ProductController::class, 'search'])->name('search');
-    
+
     // Banners API
     Route::get('/banners', [App\Http\Controllers\BannerController::class, 'getActiveBanners']);
-    
+
     // Flash Sale API (for frontend)
     Route::get('/flash-sales', [FlashSaleController::class, 'getActiveBanners']);
-    
+
     // Cart API
     Route::get('/cart', [CartController::class, 'getCart'])->name('cart');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    
+
     // Wishlist API
-    Route::middleware(['auth'])->group(function () {
+     Route::middleware(['auth'])->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'getWishlist'])->name('wishlist');
         Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
@@ -78,21 +83,21 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/', function () {
         return view('mobile.home');
     })->name('home');
-    
+
     Route::get('/shop', function () {
         return view('mobile.shop');
     })->name('shop');
-    
+
     Route::get('/product/{slug}', [ProductController::class, 'mobileShow'])->name('product');
-    
+
     Route::get('/cart', function () {
         return view('mobile.cart');
     })->name('cart');
-    
+
     Route::get('/wishlist', function () {
         return view('mobile.wishlist');
     })->name('wishlist');
-    
+
     Route::get('/account', function () {
         return view('mobile.account');
     })->name('account');
@@ -108,15 +113,27 @@ Route::prefix('food')->name('food.')->group(function () {
     Route::get('/{slug}', [FoodController::class, 'show'])->name('show');
 });
 
+
+// Account Routes (Customer)
+Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
+    Route::get('/orders/{id}', [AccountController::class, 'orderDetail'])->name('order.detail');
+    Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
+    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/password', [AccountController::class, 'changePassword'])->name('password.update');
+});
+
 // ========== ADMIN ROUTES ==========
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('login', [AuthController::class, 'login'])->name('login.submit');
-    
+
     Route::middleware('admin')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-        
+
         Route::prefix('store')->name('store.')->group(function () {
             Route::get('/', [StoreManagementController::class, 'index'])->name('index');
             Route::post('category', [StoreManagementController::class, 'storeCategory'])->name('category.store');
@@ -129,7 +146,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('origin/{id}', [StoreManagementController::class, 'updateOrigin'])->name('origin.update');
             Route::delete('origin/{id}', [StoreManagementController::class, 'deleteOrigin'])->name('origin.delete');
         });
-        
+
         Route::resource('products', AdminProductController::class);
 
         // Banner Management
