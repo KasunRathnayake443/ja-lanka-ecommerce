@@ -1,0 +1,62 @@
+<div class="coverflow-hero relative w-full h-screen overflow-hidden bg-black"
+     x-data="coverflowHero()"
+     x-init="init()"
+     x-cloak>
+
+    
+    <div class="absolute inset-0" id="coverflowTrack"></div>
+
+    
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-center z-20 px-8 pointer-events-none">
+        <h2 class="text-5xl lg:text-7xl font-bold font-['Playfair_Display'] text-white mb-4 leading-tight drop-shadow-xl"
+            x-text="currentItem.title"
+            :key="currentIndex"
+            x-transition:enter="transition ease-out duration-500"
+            x-transition:enter-start="opacity-0 translate-y-4"
+            x-transition:enter-end="opacity-100 translate-y-0">
+        </h2>
+        <p class="text-lg text-white/80 mb-8 drop-shadow-md"
+           x-show="currentItem.subtitle"
+           x-text="currentItem.subtitle"
+           x-transition:enter="transition ease-out duration-500 delay-100"
+           x-transition:enter-start="opacity-0 translate-y-3"
+           x-transition:enter-end="opacity-100 translate-y-0">
+        </p>
+        <a :href="currentItem.button_link || '/shop'"
+           class="pointer-events-auto inline-block border border-white text-white px-8 py-3 rounded-full text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-300"
+           x-text="currentItem.button_text || 'Shop Now'"
+           x-transition:enter="transition ease-out duration-500 delay-150"
+           x-transition:enter-start="opacity-0 translate-y-2"
+           x-transition:enter-end="opacity-100 translate-y-0">
+        </a>
+    </div>
+
+    
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-40">
+        <template x-for="(item, idx) in items" :key="idx">
+            <button @click="goToSlide(idx)"
+                    class="h-1 rounded-full transition-all duration-300"
+                    :class="currentIndex === idx ? 'w-8 bg-red-600' : 'w-3 bg-white/40 hover:bg-white/60'">
+            </button>
+        </template>
+    </div>
+
+    
+    <button @click="prevSlide"
+            class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 hover:bg-black/60 text-white flex items-center justify-center transition z-40">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </button>
+    <button @click="nextSlide"
+            class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 hover:bg-black/60 text-white flex items-center justify-center transition z-40">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+        </svg>
+    </button>
+
+    
+    <div x-show="items.length === 0" class="absolute inset-0 flex items-center justify-center bg-black z-50">
+        <div class="w-10 h-10 border-2 border-white/20 border-t-red-600 rounded-full animate-spin"></div>
+    </div>
+</div><?php /**PATH C:\Users\Kasun Rathnayake\Herd\ja-lanka-ecommerce\resources\views/partials/coverflow-hero.blade.php ENDPATH**/ ?>

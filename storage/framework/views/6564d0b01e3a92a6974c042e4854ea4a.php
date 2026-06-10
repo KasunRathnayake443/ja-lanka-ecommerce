@@ -1,13 +1,11 @@
-@extends('layouts.desktop')
+<?php $__env->startSection('title', 'Home - Global Flavors Mart'); ?>
 
-@section('title', 'Home - Global Flavors Mart')
+<?php $__env->startSection('content'); ?>
 
-@section('content')
 
-{{-- ===================== COVERFLOW HERO CAROUSEL ===================== --}}
-@include('partials.coverflow-hero')
+<?php echo $__env->make('partials.coverflow-hero', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-{{-- ===================== SHOP BY CATEGORY ===================== --}}
+
 <section class="section-wrap py-16 md:py-20 bg-white">
     <div class="section-head max-w-[1400px] mx-auto px-6 md:px-10 mb-10">
         <p class="section-eyebrow text-[0.72rem] font-semibold tracking-[0.14em] uppercase text-red-700 mb-1.5">Browse</p>
@@ -30,7 +28,7 @@
                 <div class="cat-card-back absolute inset-0 bg-black rounded-xl flex flex-col items-center justify-center gap-3 text-white [transform:rotateY(180deg)] [backface-visibility:hidden]">
                     <span class="text-4xl">🍜</span>
                     <h3 class="text-xl font-bold">Food Items</h3>
-                    <a href="{{ route('shop') }}?type=food" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
+                    <a href="<?php echo e(route('shop')); ?>?type=food" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
                 </div>
             </div>
         </div>
@@ -48,7 +46,7 @@
                 <div class="cat-card-back absolute inset-0 bg-black rounded-xl flex flex-col items-center justify-center gap-3 text-white [transform:rotateY(180deg)] [backface-visibility:hidden]">
                     <span class="text-4xl">🔌</span>
                     <h3 class="text-xl font-bold">Appliances</h3>
-                    <a href="{{ route('shop') }}?type=appliance" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
+                    <a href="<?php echo e(route('shop')); ?>?type=appliance" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
                 </div>
             </div>
         </div>
@@ -66,7 +64,7 @@
                 <div class="cat-card-back absolute inset-0 bg-black rounded-xl flex flex-col items-center justify-center gap-3 text-white [transform:rotateY(180deg)] [backface-visibility:hidden]">
                     <span class="text-4xl">🔥</span>
                     <h3 class="text-xl font-bold">Sale</h3>
-                    <a href="{{ route('sale') }}" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
+                    <a href="<?php echo e(route('sale')); ?>" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
                 </div>
             </div>
         </div>
@@ -84,7 +82,7 @@
                 <div class="cat-card-back absolute inset-0 bg-black rounded-xl flex flex-col items-center justify-center gap-3 text-white [transform:rotateY(180deg)] [backface-visibility:hidden]">
                     <span class="text-4xl">✨</span>
                     <h3 class="text-xl font-bold">New Arrivals</h3>
-                    <a href="{{ route('shop') }}?sort=newest" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
+                    <a href="<?php echo e(route('shop')); ?>?sort=newest" class="inline-block mt-1 border border-white/50 px-6 py-2 text-xs font-semibold tracking-wide uppercase rounded transition hover:bg-white hover:text-black">Shop Now →</a>
                 </div>
             </div>
         </div>
@@ -92,7 +90,7 @@
 </section>
 
 
-{{-- ===================== FLASH SALE ===================== --}}
+
 <section class="section-wrap py-16 md:py-20 bg-gray-50">
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
         <div class="section-head flex flex-wrap items-end justify-between gap-4 mb-10">
@@ -100,7 +98,7 @@
                 <p class="section-eyebrow text-[0.72rem] font-semibold tracking-[0.14em] uppercase text-red-700 mb-1.5">Limited Time</p>
                 <h2 class="section-title text-3xl md:text-4xl font-bold text-black tracking-tight">Flash Sale</h2>
             </div>
-            <a href="{{ route('sale') }}" class="view-all-link text-sm font-semibold text-black no-underline border-b border-black pb-0.5 whitespace-nowrap transition hover:text-red-700 hover:border-red-700">View all deals →</a>
+            <a href="<?php echo e(route('sale')); ?>" class="view-all-link text-sm font-semibold text-black no-underline border-b border-black pb-0.5 whitespace-nowrap transition hover:text-red-700 hover:border-red-700">View all deals →</a>
         </div>
 
         <div x-data="{ flashSales: [] }" x-init="
@@ -136,7 +134,7 @@
 </section>
 
 
-{{-- ===================== FEATURED PRODUCTS ===================== --}}
+
 <section class="section-wrap py-16 md:py-20 bg-white">
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
         <div class="section-head flex flex-wrap items-end justify-between gap-4 mb-10">
@@ -144,7 +142,7 @@
                 <p class="section-eyebrow text-[0.72rem] font-semibold tracking-[0.14em] uppercase text-red-700 mb-1.5">Hand-picked</p>
                 <h2 class="section-title text-3xl md:text-4xl font-bold text-black tracking-tight">Featured Products</h2>
             </div>
-            <a href="{{ route('shop') }}" class="view-all-link text-sm font-semibold text-black no-underline border-b border-black pb-0.5 whitespace-nowrap transition hover:text-red-700 hover:border-red-700">Browse all →</a>
+            <a href="<?php echo e(route('shop')); ?>" class="view-all-link text-sm font-semibold text-black no-underline border-b border-black pb-0.5 whitespace-nowrap transition hover:text-red-700 hover:border-red-700">Browse all →</a>
         </div>
 
         <div x-data="{ featured: [] }" x-init="fetch('/api/products?page=1&limit=8').then(r=>r.json()).then(d=>{ featured=d.data; })">
@@ -184,7 +182,7 @@
     </div>
 </section>
 
-{{-- ===================== NEW ARRIVALS ===================== --}}
+
 <section class="section-wrap py-16 md:py-20 bg-gray-50">
     <div class="max-w-[1400px] mx-auto px-6 md:px-10">
         <div class="section-head flex flex-wrap items-end justify-between gap-4 mb-10">
@@ -192,7 +190,7 @@
                 <p class="section-eyebrow text-[0.72rem] font-semibold tracking-[0.14em] uppercase text-red-700 mb-1.5">Just In</p>
                 <h2 class="section-title text-3xl md:text-4xl font-bold text-black tracking-tight">New Arrivals</h2>
             </div>
-            <a href="{{ route('shop') }}?sort=newest" class="view-all-link text-sm font-semibold text-black no-underline border-b border-black pb-0.5 whitespace-nowrap transition hover:text-red-700 hover:border-red-700">See all →</a>
+            <a href="<?php echo e(route('shop')); ?>?sort=newest" class="view-all-link text-sm font-semibold text-black no-underline border-b border-black pb-0.5 whitespace-nowrap transition hover:text-red-700 hover:border-red-700">See all →</a>
         </div>
 
         <div x-data="{ newArrivals: [] }" x-init="fetch('/api/products?page=1&sort=newest').then(r=>r.json()).then(d=>{ newArrivals=d.data; })">
@@ -233,7 +231,7 @@
     </div>
 </section>
 
-{{-- ===================== NEWSLETTER ===================== --}}
+
 <section class="newsletter-section py-16 md:py-20 bg-black">
     <div class="newsletter-inner max-w-3xl mx-auto px-6 flex flex-col md:flex-row items-center gap-10">
         <div class="newsletter-text flex-1 text-center md:text-left text-white">
@@ -250,7 +248,7 @@
     </div>
 </section>
 
-{{-- ===================== BRANDS ===================== --}}
+
 <section class="brands-section py-14 bg-white border-t border-gray-100">
     <p class="section-eyebrow text-center text-[0.72rem] font-semibold tracking-[0.14em] uppercase text-red-700 mb-7">Trusted Brands</p>
     <div class="brands-strip flex flex-wrap justify-center gap-8 md:gap-14 items-center">
@@ -264,7 +262,7 @@
     </div>
 </section>
 
-{{-- ===================== SCRIPTS ===================== --}}
+
 <script>
 function addToCart(productId) {
     fetch('/api/cart/add', {
@@ -326,4 +324,5 @@ function subscribeNewsletter() {
 }
 </style>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.desktop', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\Kasun Rathnayake\Herd\ja-lanka-ecommerce\resources\views/home.blade.php ENDPATH**/ ?>
