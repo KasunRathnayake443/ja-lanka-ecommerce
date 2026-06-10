@@ -65,37 +65,38 @@ class AccountController extends Controller
         return view('account.profile', compact('user'));
     }
 
-    public function updateProfile(Request $request)
-    {
-        $user = Auth::user();
+public function updateProfile(Request $request)
+{
+    $user = Auth::user();
+    
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'mobile' => 'nullable|string|max:20',
+        'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+    ]);
+
+    $user->update([
+        'name' => $request->name,
+        'email' => $request->email,
+        'mobile' => $request->mobile,
+    ]);
+
+    // Only process profile photo if a file was uploaded
+    if ($request->hasFile('profile_photo')) {
+        $file = $request->file('profile_photo');
         
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile' => 'nullable|string|max:20',
-        ]);
-
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'mobile' => $request->mobile,
-        ]);
-
-        if ($request->hasFile('profile_photo')) {
-            $request->validate([
-                'profile_photo' => 'image|mimes:jpeg,png,jpg|max:2048'
-            ]);
-            
-            if ($user->profile_photo) {
-                Storage::disk('public')->delete($user->profile_photo);
-            }
-            
-            $path = $request->file('profile_photo')->store('profiles', 'public');
-            $user->update(['profile_photo' => $path]);
+        // Delete old photo if exists
+        if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+            Storage::disk('public')->delete($user->profile_photo);
         }
-
-        return back()->with('success', 'Profile updated successfully!');
+        
+        $path = $file->store('profiles', 'public');
+        $user->update(['profile_photo' => $path]);
     }
+
+    return back()->with('success', 'Profile updated successfully!');
+}
 
     public function changePassword(Request $request)
     {

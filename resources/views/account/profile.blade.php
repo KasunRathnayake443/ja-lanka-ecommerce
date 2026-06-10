@@ -38,6 +38,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
                                 <input type="file" name="profile_photo" accept="image/*" class="text-sm">
+                                <p class="text-xs text-gray-500 mt-1">Leave empty to keep current photo. Max 2MB. JPG, PNG, GIF, WEBP</p>
                             </div>
                         </div>
                         

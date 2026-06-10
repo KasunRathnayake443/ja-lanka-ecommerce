@@ -12,6 +12,7 @@ use App\Http\Controllers\FoodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\User\AccountController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 
 // ========== DESKTOP ROUTES ==========
@@ -123,6 +124,15 @@ Route::middleware(['auth'])->prefix('account')->name('account.')->group(function
     Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
     Route::put('/password', [AccountController::class, 'changePassword'])->name('password.update');
+});
+// Address Routes
+Route::prefix('account')->name('account.')->middleware('auth')->group(function () {
+    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::put('/addresses/{id}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
+    Route::post('/addresses/geocode', [AddressController::class, 'geocode'])->name('addresses.geocode');
 });
 
 // ========== ADMIN ROUTES ==========

@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'My Wishlist - Ja Lanka'); ?>
 
 <?php $__env->startSection('content'); ?>

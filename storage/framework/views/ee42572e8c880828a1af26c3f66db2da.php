@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'My Orders - Ja Lanka'); ?>
 
 <?php $__env->startSection('content'); ?>

@@ -3,40 +3,7 @@
 <?php $__env->startSection('content'); ?>
 
 
-<div class="hero-carousel relative w-full h-screen overflow-hidden bg-black" x-data="{ currentSlide: 0, slides: [], total: 0 }" x-init="
-    fetch('/api/banners')
-        .then(res => res.json())
-        .then(data => {
-            slides = data;
-            total = data.length;
-            if (total > 1) setInterval(() => { currentSlide = (currentSlide + 1) % total }, 5000);
-        })
-">
-    <template x-for="(slide, index) in slides" :key="index">
-        <div
-            class="hero-slide absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-700 pointer-events-none"
-            :class="currentSlide === index ? 'opacity-100 pointer-events-auto' : ''"
-            :style="'background-image: url(/storage/' + slide.image + ')'"
-        >
-            <div class="hero-overlay absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-            <div class="hero-content absolute bottom-20 left-16 text-white max-w-xl">
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-3 drop-shadow-lg" x-text="slide.title"></h2>
-                <p class="text-base md:text-lg opacity-85 mb-6 leading-relaxed" x-show="slide.subtitle" x-text="slide.subtitle"></p>
-                <a x-show="slide.button_text" :href="slide.button_link || '/shop'" x-text="slide.button_text" class="hero-btn inline-block bg-white text-black px-8 py-3 font-bold text-sm tracking-wide uppercase no-underline transition hover:bg-red-700 hover:text-white"></a>
-            </div>
-        </div>
-    </template>
-    
-    <div class="hero-dots absolute bottom-7 left-16 flex gap-2 items-center">
-        <template x-for="(slide, index) in slides" :key="index">
-            <button @click="currentSlide = index" class="hero-dot w-1.5 h-1.5 rounded-full bg-white/40 transition-all duration-200" :class="currentSlide === index ? '!bg-white scale-150' : ''"></button>
-        </template>
-    </div>
-    
-    <div x-show="slides.length === 0" class="absolute inset-0 flex items-center justify-center">
-        <div class="spinner w-9 h-9 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-    </div>
-</div>
+<?php echo $__env->make('partials.coverflow-hero', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 
 <section class="section-wrap py-16 md:py-20 bg-white">

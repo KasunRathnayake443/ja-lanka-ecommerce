@@ -21,20 +21,32 @@ class Address extends Model
         'province',
         'postal_code',
         'delivery_instructions',
+        'latitude',
+        'longitude',
         'is_default'
     ];
 
     protected $casts = [
         'is_default' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-    public function orders()
+    
+    public function getFullAddressAttribute()
     {
-        return $this->hasMany(Order::class, 'shipping_address_id');
+        $address = $this->address_line1;
+        if ($this->address_line2) {
+            $address .= ', ' . $this->address_line2;
+        }
+        $address .= ', ' . $this->city . ', ' . $this->district;
+        if ($this->province) {
+            $address .= ', ' . $this->province;
+        }
+        return $address;
     }
 }
