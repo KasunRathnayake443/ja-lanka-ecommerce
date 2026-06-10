@@ -3,15 +3,15 @@
      x-init="init()"
      x-cloak>
 
-    {{-- SLIDES --}}
+    
     <div id="heroSlideWrap" class="absolute inset-0"></div>
 
-    {{-- PROGRESS BAR --}}
+    
     <div class="absolute bottom-0 left-0 w-full h-0.5 bg-white/10 z-30">
         <div id="heroProgress" class="h-full bg-white/60 w-0"></div>
     </div>
 
-    {{-- DESKTOP BOTTOM NAV (left-aligned) --}}
+    
     <div class="absolute bottom-6 left-12 z-30 items-center gap-5 hidden lg:flex">
         <div class="text-[11px] tracking-[0.13em] text-white/35 font-mono whitespace-nowrap" x-text="counter"></div>
         <div class="flex gap-1">
@@ -31,12 +31,12 @@
         <div id="heroDots" class="flex gap-1.5 items-center"></div>
     </div>
 
-    {{-- DESKTOP THUMBNAILS (right side, smaller, centered vertically) --}}
+    
     <div id="heroThumbStrip"
          class="absolute right-6 top-1/2 -translate-y-1/2 w-20 z-20 flex-col gap-2 hidden lg:flex">
     </div>
 
-    {{-- MOBILE BOTTOM BAR --}}
+    
     <div class="absolute bottom-0 left-0 right-0 h-[72px] z-30 flex items-center px-4 gap-3 lg:hidden">
         <div class="text-[10px] tracking-[0.1em] text-white/40 font-mono whitespace-nowrap shrink-0 w-[34px]" x-text="counter"></div>
 
@@ -56,7 +56,7 @@
         <div id="heroThumbMobile" class="flex gap-2 items-center flex-1 overflow-hidden justify-center"></div>
     </div>
 
-    {{-- LOADING STATE --}}
+    
     <div x-show="loading" class="absolute inset-0 flex items-center justify-center bg-[#080808] z-50">
         <div class="w-10 h-10 border-2 border-white/20 border-t-white/70 rounded-full animate-spin"></div>
     </div>
@@ -402,7 +402,7 @@ function heroCarousel() {
                         <div class="hs-sub">${s.subtitle}</div>
                         <div class="hs-btns">
                             <a href="${s.link}" class="hs-btn-primary">${s.btnText}</a>
-                            <a href="{{ route('shop') }}" class="hs-btn-ghost">Explore More</a>
+                            <a href="<?php echo e(route('shop')); ?>" class="hs-btn-ghost">Explore More</a>
                         </div>
                     </div>`;
                 slideWrap.appendChild(slide);
@@ -493,4 +493,4 @@ function heroCarousel() {
         },
     };
 }
-</script>
+</script><?php /**PATH C:\Users\User\Herd\ja-lanka-ecommerce\resources\views/partials/coverflow-hero.blade.php ENDPATH**/ ?>

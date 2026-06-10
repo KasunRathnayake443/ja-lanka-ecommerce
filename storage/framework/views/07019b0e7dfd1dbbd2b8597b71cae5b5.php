@@ -1,99 +1,98 @@
-@extends('layouts.mobile')
+<?php $__env->startSection('title', $product->name); ?>
 
-@section('title', $product->name)
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="pb-24 bg-gray-50">
     
     <!-- Product Images Gallery -->
     <div class="relative bg-white">
         <div class="relative overflow-hidden">
-            <img id="mobileMainImage" src="{{ asset('storage/' . ($product->images->first()->image_path ?? 'images/placeholder.jpg')) }}" 
-                 alt="{{ $product->name }}"
+            <img id="mobileMainImage" src="<?php echo e(asset('storage/' . ($product->images->first()->image_path ?? 'images/placeholder.jpg'))); ?>" 
+                 alt="<?php echo e($product->name); ?>"
                  class="w-full h-96 object-cover">
             
             <!-- Sale Badge on Image -->
-            @if($product->sale_price && $product->sale_price < $product->regular_price)
+            <?php if($product->sale_price && $product->sale_price < $product->regular_price): ?>
             <div class="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                {{ $product->discount_percent }}% OFF
+                <?php echo e($product->discount_percent); ?>% OFF
             </div>
-            @endif
+            <?php endif; ?>
         </div>
         
         <!-- Thumbnail Gallery -->
-        @if($product->images->count() > 1)
+        <?php if($product->images->count() > 1): ?>
         <div class="flex gap-2 p-3 overflow-x-auto bg-white border-t border-gray-100">
-            @foreach($product->images as $index => $image)
-            <div class="w-16 h-16 flex-shrink-0 cursor-pointer border-2 rounded-lg overflow-hidden transition-all {{ $index == 0 ? 'border-red-600' : 'border-gray-200 hover:border-red-400' }}"
-                 onclick="document.getElementById('mobileMainImage').src = '{{ asset('storage/' . $image->image_path) }}';
+            <?php $__currentLoopData = $product->images; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <div class="w-16 h-16 flex-shrink-0 cursor-pointer border-2 rounded-lg overflow-hidden transition-all <?php echo e($index == 0 ? 'border-red-600' : 'border-gray-200 hover:border-red-400'); ?>"
+                 onclick="document.getElementById('mobileMainImage').src = '<?php echo e(asset('storage/' . $image->image_path)); ?>';
                           document.querySelectorAll('.thumbnail-m').forEach(t => t.classList.remove('border-red-600'));
                           this.classList.add('border-red-600')">
-                <img src="{{ asset('storage/' . $image->image_path) }}" class="w-full h-full object-cover">
+                <img src="<?php echo e(asset('storage/' . $image->image_path)); ?>" class="w-full h-full object-cover">
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
     
     <div class="px-4 py-5">
         <!-- Origin & Brand -->
         <div class="flex justify-between items-start mb-2">
-            @if($product->origin)
+            <?php if($product->origin): ?>
             <div class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                {{ $product->origin->flag_icon ?? '🌏' }} {{ $product->origin->country_name }}
+                <?php echo e($product->origin->flag_icon ?? '🌏'); ?> <?php echo e($product->origin->country_name); ?>
+
             </div>
-            @endif
-            @if($product->brand)
-            <div class="text-xs text-gray-500">Brand: {{ $product->brand->name }}</div>
-            @endif
+            <?php endif; ?>
+            <?php if($product->brand): ?>
+            <div class="text-xs text-gray-500">Brand: <?php echo e($product->brand->name); ?></div>
+            <?php endif; ?>
         </div>
         
         <!-- Product Name -->
-        <h1 class="text-2xl font-bold text-gray-900 mt-2 mb-3 font-['Playfair_Display']">{{ $product->name }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mt-2 mb-3 font-['Playfair_Display']"><?php echo e($product->name); ?></h1>
         
         <!-- Price -->
         <div class="mb-4">
-            @if($product->sale_price && $product->sale_price < $product->regular_price)
+            <?php if($product->sale_price && $product->sale_price < $product->regular_price): ?>
                 <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-3xl font-bold text-red-600">LKR {{ number_format($product->sale_price, 2) }}</span>
-                    <span class="text-gray-400 line-through">LKR {{ number_format($product->regular_price, 2) }}</span>
+                    <span class="text-3xl font-bold text-red-600">LKR <?php echo e(number_format($product->sale_price, 2)); ?></span>
+                    <span class="text-gray-400 line-through">LKR <?php echo e(number_format($product->regular_price, 2)); ?></span>
                     <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">
-                        Save {{ $product->discount_percent }}%
+                        Save <?php echo e($product->discount_percent); ?>%
                     </span>
                 </div>
-            @else
-                <span class="text-3xl font-bold text-gray-900">LKR {{ number_format($product->regular_price, 2) }}</span>
-            @endif
+            <?php else: ?>
+                <span class="text-3xl font-bold text-gray-900">LKR <?php echo e(number_format($product->regular_price, 2)); ?></span>
+            <?php endif; ?>
         </div>
         
         <!-- Stock Status -->
         <div class="mb-5">
-            @if($product->stock > 0)
+            <?php if($product->stock > 0): ?>
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span class="text-green-600 text-sm font-medium">In Stock ({{ $product->stock }} available)</span>
+                    <span class="text-green-600 text-sm font-medium">In Stock (<?php echo e($product->stock); ?> available)</span>
                 </div>
-            @else
+            <?php else: ?>
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 bg-red-500 rounded-full"></span>
                     <span class="text-red-600 text-sm font-medium">Out of Stock</span>
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
         
         <!-- Short Description -->
-        @if($product->short_description)
+        <?php if($product->short_description): ?>
         <div class="mb-5 p-4 bg-gray-100 rounded-xl">
-            <p class="text-gray-600 text-sm leading-relaxed">{{ $product->short_description }}</p>
+            <p class="text-gray-600 text-sm leading-relaxed"><?php echo e($product->short_description); ?></p>
         </div>
-        @endif
+        <?php endif; ?>
         
         <!-- Quantity Selector -->
         <div class="flex items-center justify-between mb-6">
             <span class="text-gray-700 font-medium">Quantity:</span>
             <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                 <button onclick="decrementQuantity()" class="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors text-lg font-medium">-</button>
-                <input type="number" id="quantity" value="1" min="1" max="{{ $product->stock }}" class="w-14 h-10 text-center border-x border-gray-200 focus:outline-none">
+                <input type="number" id="quantity" value="1" min="1" max="<?php echo e($product->stock); ?>" class="w-14 h-10 text-center border-x border-gray-200 focus:outline-none">
                 <button onclick="incrementQuantity()" class="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors text-lg font-medium">+</button>
             </div>
         </div>
@@ -104,8 +103,8 @@
                 Add to Cart
             </button>
             <button onclick="toggleWishlist()" class="w-14 h-14 flex items-center justify-center border border-gray-300 rounded-xl hover:border-red-400 transition-all duration-200 bg-white">
-                <svg id="wishlistIcon" class="w-6 h-6 {{ $inWishlist ? 'fill-red-600 text-red-600' : 'fill-none text-gray-600' }}" 
-                     fill="{{ $inWishlist ? '#dc2626' : 'none' }}" 
+                <svg id="wishlistIcon" class="w-6 h-6 <?php echo e($inWishlist ? 'fill-red-600 text-red-600' : 'fill-none text-gray-600'); ?>" 
+                     fill="<?php echo e($inWishlist ? '#dc2626' : 'none'); ?>" 
                      stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -126,63 +125,64 @@
             
             <div id="tabDescription" class="py-5">
                 <div class="text-gray-600 text-sm leading-relaxed space-y-2">
-                    {!! nl2br(e($product->description ?? 'No description available.')) !!}
+                    <?php echo nl2br(e($product->description ?? 'No description available.')); ?>
+
                 </div>
             </div>
             
             <div id="tabSpecifications" class="py-5 hidden">
-                @if($product->attributes->count() > 0)
+                <?php if($product->attributes->count() > 0): ?>
                     <div class="bg-gray-50 rounded-xl overflow-hidden">
                         <div class="divide-y divide-gray-200">
-                            @foreach($product->attributes as $attr)
+                            <?php $__currentLoopData = $product->attributes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="flex py-3 px-4">
-                                <div class="w-1/2 text-gray-600 text-sm font-medium">{{ $attr->key }}</div>
-                                <div class="w-1/2 text-gray-800 text-sm">{{ $attr->value }}</div>
+                                <div class="w-1/2 text-gray-600 text-sm font-medium"><?php echo e($attr->key); ?></div>
+                                <div class="w-1/2 text-gray-800 text-sm"><?php echo e($attr->value); ?></div>
                             </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
                     </div>
-                @else
+                <?php else: ?>
                     <p class="text-gray-500 text-sm text-center py-8">No specifications available.</p>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </div>
     
     <!-- Related Products -->
-    @if($related->count() > 0)
+    <?php if($related->count() > 0): ?>
     <div class="mt-4 px-4 pb-8">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-900 font-['Playfair_Display']">You May Also Like</h2>
-            <a href="{{ route('mobile.shop') }}" class="text-xs text-red-600 font-medium">View All →</a>
+            <a href="<?php echo e(route('mobile.shop')); ?>" class="text-xs text-red-600 font-medium">View All →</a>
         </div>
         
         <div class="overflow-x-auto pb-2 -mx-1 px-1">
             <div class="flex gap-3" style="min-width: max-content;">
-                @foreach($related as $item)
-                <a href="{{ route('mobile.product', $item->slug) }}" class="w-40 flex-shrink-0 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                <?php $__currentLoopData = $related; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <a href="<?php echo e(route('mobile.product', $item->slug)); ?>" class="w-40 flex-shrink-0 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
                     <div class="h-32 overflow-hidden">
-                        <img src="{{ asset('storage/' . ($item->images->first()->image_path ?? 'images/placeholder.jpg')) }}" 
+                        <img src="<?php echo e(asset('storage/' . ($item->images->first()->image_path ?? 'images/placeholder.jpg'))); ?>" 
                              class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
                     </div>
                     <div class="p-3">
-                        <h3 class="font-semibold text-xs line-clamp-2">{{ Str::limit($item->name, 35) }}</h3>
-                        <p class="text-red-600 font-bold text-sm mt-1">LKR {{ number_format($item->regular_price, 2) }}</p>
-                        @if($item->discount_percent > 0)
-                            <span class="text-green-600 text-xs">-{{ $item->discount_percent }}%</span>
-                        @endif
+                        <h3 class="font-semibold text-xs line-clamp-2"><?php echo e(Str::limit($item->name, 35)); ?></h3>
+                        <p class="text-red-600 font-bold text-sm mt-1">LKR <?php echo e(number_format($item->regular_price, 2)); ?></p>
+                        <?php if($item->discount_percent > 0): ?>
+                            <span class="text-green-600 text-xs">-<?php echo e($item->discount_percent); ?>%</span>
+                        <?php endif; ?>
                     </div>
                 </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
     
 </div>
 
 <script>
-let currentWishlistStatus = {{ $inWishlist ? 'true' : 'false' }};
+let currentWishlistStatus = <?php echo e($inWishlist ? 'true' : 'false'); ?>;
 
 function incrementQuantity() {
     let input = document.getElementById('quantity');
@@ -210,7 +210,7 @@ async function addToCart() {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
             body: JSON.stringify({ 
-                product_id: {{ $product->id }}, 
+                product_id: <?php echo e($product->id); ?>, 
                 quantity: quantity 
             })
         });
@@ -227,16 +227,16 @@ async function addToCart() {
 }
 
 async function toggleWishlist() {
-    if (!{{ auth()->check() ? 'true' : 'false' }}) {
+    if (!<?php echo e(auth()->check() ? 'true' : 'false'); ?>) {
         showToast('Please login to add to wishlist', 'error');
         setTimeout(() => {
-            window.location.href = '{{ route("login") }}';
+            window.location.href = '<?php echo e(route("login")); ?>';
         }, 1500);
         return;
     }
     
     try {
-        const response = await fetch('/api/wishlist/{{ $product->id }}', {
+        const response = await fetch('/api/wishlist/<?php echo e($product->id); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -327,4 +327,5 @@ function showTab(tab) {
     transform: scale(0.98);
 }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\User\Herd\ja-lanka-ecommerce\resources\views/mobile/product.blade.php ENDPATH**/ ?>

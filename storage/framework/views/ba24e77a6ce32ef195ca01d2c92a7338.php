@@ -1,8 +1,6 @@
-@extends('layouts.mobile')
+<?php $__env->startSection('title', 'Home'); ?>
 
-@section('title', 'Home')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="pb-20 bg-gray-50">
     
     <!-- Hero Banner with Ken Burns Effect -->
@@ -47,7 +45,7 @@
         
         <div class="grid grid-cols-2 gap-3">
             <!-- Food Card -->
-            <a href="{{ route('mobile.shop') }}?type=food" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
+            <a href="<?php echo e(route('mobile.shop')); ?>?type=food" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('/images/cat-foods.jpg')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-3 left-3 right-3">
@@ -58,7 +56,7 @@
             </a>
             
             <!-- Appliances Card -->
-            <a href="{{ route('mobile.shop') }}?type=appliance" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
+            <a href="<?php echo e(route('mobile.shop')); ?>?type=appliance" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('/images/cat-appliances.jpg')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-3 left-3 right-3">
@@ -69,7 +67,7 @@
             </a>
             
             <!-- Sale Card -->
-            <a href="{{ route('mobile.sale') }}" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
+            <a href="<?php echo e(route('mobile.sale')); ?>" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('/images/cat-flash.png')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-3 left-3 right-3">
@@ -80,7 +78,7 @@
             </a>
             
             <!-- New Arrivals Card -->
-            <a href="{{ route('mobile.shop') }}?sort=newest" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
+            <a href="<?php echo e(route('mobile.shop')); ?>?sort=newest" class="group relative h-48 rounded-xl overflow-hidden shadow-md">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('/images/cat-new.webp')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-3 left-3 right-3">
@@ -99,7 +97,7 @@
                 <p class="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-red-600 mb-0.5">Limited Time</p>
                 <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Flash Sale</h2>
             </div>
-            <a href="{{ route('mobile.sale') }}" class="text-xs font-medium text-gray-600 hover:text-red-600">View All →</a>
+            <a href="<?php echo e(route('mobile.sale')); ?>" class="text-xs font-medium text-gray-600 hover:text-red-600">View All →</a>
         </div>
         
         <div x-data="{ flashSales: [] }" x-init="
@@ -142,7 +140,7 @@
                 <p class="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-red-600 mb-0.5">Hand-picked</p>
                 <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Featured</h2>
             </div>
-            <a href="{{ route('mobile.shop') }}" class="text-xs font-medium text-gray-600 hover:text-red-600">See All →</a>
+            <a href="<?php echo e(route('mobile.shop')); ?>" class="text-xs font-medium text-gray-600 hover:text-red-600">See All →</a>
         </div>
         
         <div x-data="{ featured: [] }" x-init="
@@ -192,7 +190,7 @@
                 <p class="text-[0.7rem] font-semibold tracking-[0.14em] uppercase text-red-600 mb-0.5">Just In</p>
                 <h2 class="text-2xl font-bold text-gray-900 tracking-tight">New Arrivals</h2>
             </div>
-            <a href="{{ route('mobile.shop') }}?sort=newest" class="text-xs font-medium text-gray-600 hover:text-red-600">See All →</a>
+            <a href="<?php echo e(route('mobile.shop')); ?>?sort=newest" class="text-xs font-medium text-gray-600 hover:text-red-600">See All →</a>
         </div>
         
         <div x-data="{ newArrivals: [] }" x-init="
@@ -313,4 +311,5 @@ function subscribeNewsletter() {
     }
 }
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\User\Herd\ja-lanka-ecommerce\resources\views/mobile/home.blade.php ENDPATH**/ ?>

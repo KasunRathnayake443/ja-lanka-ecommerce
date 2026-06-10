@@ -1,4 +1,3 @@
-
 @extends('layouts.desktop')
 
 @section('title', 'Profile Settings - Ja Lanka')
@@ -18,7 +17,21 @@
                 <h2 class="text-2xl font-light font-['Cormorant_Garamond'] mb-6">Profile Settings</h2>
                 
                 @if(session('success'))
-                    <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
+                    <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
+                @endif
+                
+                @if(session('error'))
+                    <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
+                @endif
+                
+                @if($errors->any())
+                    <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                 @endif
                 
                 <!-- Profile Info Form -->
@@ -28,20 +41,22 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="md:col-span-2 flex items-center gap-4 mb-4">
-                            @if(Auth::user()->profile_photo)
+                            @if(Auth::user()->profile_photo && Storage::disk('public')->exists(Auth::user()->profile_photo))
                                 <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" class="w-16 h-16 rounded-full object-cover">
                             @else
                                 <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                                    <span class="text-2xl font-bold text-red-700">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                    <span class="text-2xl font-bold text-red-700">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 </div>
                             @endif
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
-                                <input type="file" name="profile_photo" accept="image/*" class="text-sm">
-                                <p class="text-xs text-gray-500 mt-1">Leave empty to keep current photo. Max 2MB. JPG, PNG, GIF, WEBP</p>
+                                <input type="file" name="profile_photo" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="text-sm">
+                                <p class="text-xs text-gray-500 mt-1">Allowed: JPG, PNG, GIF, WEBP. Max: 5MB</p>
+                                @error('profile_photo')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
-                        
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
                             <input type="text" name="name" value="{{ old('name', Auth::user()->name) }}" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:border-red-500 focus:outline-none">
@@ -54,15 +69,15 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-                            <input type="text" name="mobile" value="{{ old('mobile', Auth::user()->mobile) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:border-red-500 focus:outline-none">
+                            <input type="tel" name="mobile" value="{{ old('mobile', Auth::user()->mobile) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:border-red-500 focus:outline-none">
                         </div>
                     </div>
                     
                     <div class="mt-5">
-                        <button type="submit" class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition">Update Profile</button>
-                    </div>
-                </form>
-                
+                            <button type="submit" class="bg-red-700 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition">Update Profile</button>
+                        </div>
+                    </form>
+                                    
                 <!-- Change Password Form -->
                 <div class="border-t border-gray-100 pt-6">
                     <h3 class="text-lg font-semibold mb-4">Change Password</h3>
@@ -85,6 +100,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">New Password *</label>
                                 <input type="password" name="new_password" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:border-red-500 focus:outline-none">
+                                @error('new_password')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                             
                             <div>

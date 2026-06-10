@@ -1,13 +1,11 @@
-@extends('layouts.mobile')
+<?php $__env->startSection('title', 'Shop'); ?>
 
-@section('title', 'Shop')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="pb-24 bg-gray-50">
     
     <!-- Hero Banner -->
     <div class="relative h-40 overflow-hidden bg-black">
-        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ asset('images/shop-banner.jpg') }}')"></div>
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<?php echo e(asset('images/shop-banner.jpg')); ?>')"></div>
         <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
         <div class="absolute inset-0 flex flex-col justify-center px-6">
             <h1 class="text-3xl font-bold text-white font-['Playfair_Display']">The Collection</h1>
@@ -447,4 +445,5 @@ loadProducts();
     animation: slide-up 0.3s ease-out;
 }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\User\Herd\ja-lanka-ecommerce\resources\views/mobile/shop.blade.php ENDPATH**/ ?>
