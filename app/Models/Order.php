@@ -38,12 +38,6 @@ class Order extends Model
     protected $casts = [
         'placed_at' => 'datetime',
         'delivery_date' => 'date',
-        'total_amount' => 'decimal:2',
-        'subtotal' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'shipping_amount' => 'decimal:2',
-        'tax_amount' => 'decimal:2',
-        'grand_total' => 'decimal:2',
     ];
 
     public function user()

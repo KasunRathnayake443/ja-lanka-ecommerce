@@ -25,9 +25,9 @@
                     <span id="cartTotal" class="text-lg font-bold text-red-600">LKR 0</span>
                 </div>
             </div>
-            <button onclick="proceedToCheckout()" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+            <a href="{{ route('checkout.index') }}" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
                 Proceed to Checkout
-            </button>
+            </a>
             <button onclick="closeCartModal()" class="w-full mt-2 text-gray-500 py-2 text-sm hover:text-gray-700">
                 Continue Shopping
             </button>

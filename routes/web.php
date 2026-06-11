@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BannerController as AdminBannerController;
-use App\Http\Controllers\Admin\CustomerController; // ADD THIS LINE
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FlashSaleController as AdminFlashSaleController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -16,6 +16,9 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Mobile\AccountController as MobileAccountController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\CouponController;
 use Illuminate\Support\Facades\Route;
 
 // ========== DESKTOP ROUTES ==========
@@ -36,10 +39,6 @@ Route::get('/shop', function () {
 })->name('shop');
 
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-
-Route::get('/cart', function () {
-    return view('cart');
-})->name('cart');
 
 Route::get('/sale', function () {
     return view('product.sale');
@@ -146,6 +145,18 @@ Route::prefix('food')->name('food.')->group(function () {
     Route::get('/{slug}', [FoodController::class, 'show'])->name('show');
 });
 
+// ========== CHECKOUT ROUTES ==========
+Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('place-order');
+    Route::get('/success/{orderId}', [CheckoutController::class, 'success'])->name('success');
+    Route::get('/payment/{orderId}', [CheckoutController::class, 'payment'])->name('payment');
+    
+    // Coupon routes
+    Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('apply-coupon');
+    Route::post('/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('remove-coupon');
+});
+
 // ========== ADMIN ROUTES ==========
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -184,7 +195,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('customers/{id}/reset-password', [CustomerController::class, 'resetPassword'])->name('customers.reset-password');
         Route::get('customers/{id}/impersonate', [CustomerController::class, 'impersonate'])->name('customers.impersonate');
         Route::get('stop-impersonate', [CustomerController::class, 'stopImpersonate'])->name('stop-impersonate');
-    });
+
+        // Order Management
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [OrderController::class, 'index'])->name('index');
+            Route::get('/{id}', [OrderController::class, 'show'])->name('show');
+            Route::post('/{id}/update-status', [OrderController::class, 'updateStatus'])->name('update-status');
+            Route::post('/{id}/update-payment', [OrderController::class, 'updatePaymentStatus'])->name('update-payment');
+            Route::delete('/{id}', [OrderController::class, 'destroy'])->name('destroy');
+            Route::get('/{id}/invoice', [OrderController::class, 'invoice'])->name('invoice');
+        });
+
+        // Coupon Management
+        Route::resource('coupons', CouponController::class);
+        Route::post('/coupons/{id}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
+        Route::get('/coupons/{id}/usage', [CouponController::class, 'usage'])->name('coupons.usage');
+            });
+
+    
 });
 
 require __DIR__.'/auth.php';

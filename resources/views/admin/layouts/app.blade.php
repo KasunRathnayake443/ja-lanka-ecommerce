@@ -44,12 +44,22 @@
                 <span class="ml-3">Categories & Brands</span>
             </a>
             
-            <a href="#" 
-               class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+           <!-- Orders Menu -->
+            <a href="{{ route('admin.orders.index') }}" 
+            class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
                 <span class="ml-3">Orders</span>
+            </a>
+
+            <!-- Coupons Menu -->
+            <a href="{{ route('admin.coupons.index') }}" 
+            class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3M5 5v10m0 0v2a2 2 0 002 2h10a2 2 0 002-2v-3m-4-4h.01M5 10h.01"></path>
+                </svg>
+                <span class="ml-3">Coupons</span>
             </a>
             
            <!-- Customers Menu -->
