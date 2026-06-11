@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\BannerController as AdminBannerController;
+use App\Http\Controllers\Admin\CustomerController; // ADD THIS LINE
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FlashSaleController as AdminFlashSaleController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\User\AccountController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Mobile\AccountController as MobileAccountController;
+use App\Http\Controllers\BannerController;
 use Illuminate\Support\Facades\Route;
 
 // ========== DESKTOP ROUTES ==========
@@ -42,16 +45,6 @@ Route::get('/sale', function () {
     return view('product.sale');
 })->name('sale');
 
-Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('account.dashboard');
-    })->name('dashboard');
-
-    Route::get('/orders', function () {
-        return view('account.orders');
-    })->name('orders');
-});
-
 // ========== API ROUTES ==========
 Route::prefix('api')->name('api.')->group(function () {
     // FILTERS must come before /products to avoid route conflict
@@ -60,7 +53,7 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get('/search', [ProductController::class, 'search'])->name('search');
 
     // Banners API
-    Route::get('/banners', [App\Http\Controllers\BannerController::class, 'getActiveBanners']);
+    Route::get('/banners', [BannerController::class, 'getActiveBanners']);
 
     // Flash Sale API (for frontend)
     Route::get('/flash-sales', [FlashSaleController::class, 'getActiveBanners']);
@@ -72,11 +65,28 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
     // Wishlist API
-     Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'getWishlist'])->name('wishlist');
         Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     });
+});
+
+// ========== DESKTOP ACCOUNT ROUTES ==========
+Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
+    Route::get('/orders/{id}', [AccountController::class, 'orderDetail'])->name('order.detail');
+    Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
+    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/password', [AccountController::class, 'changePassword'])->name('password.update');
+    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::put('/addresses/{id}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
+    Route::post('/addresses/geocode', [AddressController::class, 'geocode'])->name('addresses.geocode');
 });
 
 // ========== MOBILE ROUTES ==========
@@ -99,40 +109,41 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         return view('mobile.wishlist');
     })->name('wishlist');
 
-    Route::get('/account', function () {
-        return view('mobile.account');
-    })->name('account');
+    Route::get('/account', [MobileAccountController::class, 'index'])->name('account');
 
     Route::get('/sale', function () {
         return view('mobile.sale');
     })->name('sale');
+
+    Route::get('/about', function () {
+        return view('mobile.about');
+    })->name('about');
+    
+    Route::get('/contact', function () {
+        return view('mobile.contact');
+    })->name('contact');
+
+    // Mobile Account Sub-pages
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/dashboard', [MobileAccountController::class, 'dashboard'])->name('dashboard');
+        Route::get('/orders', [MobileAccountController::class, 'orders'])->name('orders');
+        Route::get('/orders/{id}', [MobileAccountController::class, 'orderDetail'])->name('order.detail');
+        Route::get('/wishlist', [MobileAccountController::class, 'wishlist'])->name('wishlist');
+        Route::get('/profile', [MobileAccountController::class, 'profile'])->name('profile');
+        Route::put('/profile', [MobileAccountController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [MobileAccountController::class, 'changePassword'])->name('password.update');
+        Route::get('/addresses', [MobileAccountController::class, 'addresses'])->name('addresses');
+        Route::post('/address', [MobileAccountController::class, 'storeAddress'])->name('address.store');
+        Route::put('/address/{id}', [MobileAccountController::class, 'updateAddress'])->name('address.update');
+        Route::delete('/address/{id}', [MobileAccountController::class, 'deleteAddress'])->name('address.delete');
+        Route::put('/address/{id}/set-default', [MobileAccountController::class, 'setDefault'])->name('address.set-default');
+    });
 });
 
 // ========== FOOD ROUTES ==========
 Route::prefix('food')->name('food.')->group(function () {
     Route::get('/', [FoodController::class, 'index'])->name('index');
     Route::get('/{slug}', [FoodController::class, 'show'])->name('show');
-});
-
-
-// Account Routes (Customer)
-Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
-    Route::get('/dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
-    Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
-    Route::get('/orders/{id}', [AccountController::class, 'orderDetail'])->name('order.detail');
-    Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
-    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
-    Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
-    Route::put('/password', [AccountController::class, 'changePassword'])->name('password.update');
-});
-// Address Routes
-Route::prefix('account')->name('account.')->middleware('auth')->group(function () {
-    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses');
-    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
-    Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
-    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
-    Route::put('/addresses/{id}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
-    Route::post('/addresses/geocode', [AddressController::class, 'geocode'])->name('addresses.geocode');
 });
 
 // ========== ADMIN ROUTES ==========
@@ -160,12 +171,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('products', AdminProductController::class);
 
         // Banner Management
-        Route::resource('banners', BannerController::class);
-        Route::post('banners/update-order', [BannerController::class, 'updateOrder'])->name('banners.update-order');
+        Route::resource('banners', AdminBannerController::class);
+        Route::post('banners/update-order', [AdminBannerController::class, 'updateOrder'])->name('banners.update-order');
 
         // Flash Sale Management (Admin)
         Route::resource('flash-sales', AdminFlashSaleController::class);
         Route::post('flash-sales/auto-add', [AdminFlashSaleController::class, 'autoAdd'])->name('flash-sales.auto-add');
+
+        // Customer Management
+        Route::resource('customers', CustomerController::class);
+        Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
+        Route::post('customers/{id}/reset-password', [CustomerController::class, 'resetPassword'])->name('customers.reset-password');
+        Route::get('customers/{id}/impersonate', [CustomerController::class, 'impersonate'])->name('customers.impersonate');
+        Route::get('stop-impersonate', [CustomerController::class, 'stopImpersonate'])->name('stop-impersonate');
     });
 });
 

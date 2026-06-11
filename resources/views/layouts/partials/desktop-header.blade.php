@@ -9,19 +9,19 @@
             
             <!-- Center Navigation -->
             <nav class="hidden md:flex items-center space-x-8">
-                <a href="{{ route('home') }}" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}">
+                <a href="{{ route('home') }}" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}">
                     Home
                 </a>
-                <a href="{{ route('shop') }}?type=food" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}">
+                <a href="{{ route('shop') }}?type=food" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}">
                     Foods
                 </a>
-                <a href="{{ route('shop') }}?type=appliance" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}">
+                <a href="{{ route('shop') }}?type=appliance" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}">
                     Appliances
                 </a>
-                <a href="{{ route('about') }}" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}">
+                <a href="{{ route('about') }}" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}">
                     About Us
                 </a>
-                <a href="{{ route('contact') }}" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}">
+                <a href="{{ route('contact') }}" class="nav-link transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}">
                     Contact Us
                 </a>
             </nav>
@@ -30,14 +30,14 @@
             <div class="flex items-center space-x-5">
                 <!-- Search Icon -->
                 <button id="desktopSearchBtn" onclick="toggleSearch()" class="transition">
-                    <svg class="w-5 h-5 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </button>
                 
                 <!-- Cart Icon -->
                 <a href="#" onclick="openCartModal(); return false;" class="relative transition">
-                    <svg class="w-6 h-6 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
                     <span id="cartCount" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
@@ -45,7 +45,7 @@
 
                 <!-- Wishlist Icon -->
                 <a href="#" onclick="openWishlistModal(); return false;" class="relative transition">
-                    <svg class="w-6 h-6 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
                 </a>
@@ -105,13 +105,13 @@
                             </form>
                         </div>
                     </div>
-                @else
-                    <a href="{{ route('login') }}" class="transition">
-                        <svg class="w-6 h-6 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                        </svg>
-                    </a>
-                @endauth
+                    @else
+                        <a href="{{ route('login') }}" class="transition">
+                            <svg class="w-6 h-6 icon-white transition {{ request()->routeIs('home') ? 'text-white/90 hover:text-red-600' : 'text-gray-700 hover:text-red-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </a>
+                    @endauth
             </div>
         </div>
         

@@ -38,16 +38,16 @@
                     <div class="text-[0.62rem] font-bold tracking-[0.18em] uppercase text-gray-400 mb-3">Product Type</div>
                     <div class="space-y-1">
                         <div class="flex items-center">
-                            <input type="radio" name="type" id="type-all" value="" checked class="hidden peer/type-all">
-                            <label for="type-all" class="flex items-center gap-2 text-sm text-gray-800 px-2 py-1.5 cursor-pointer w-full rounded hover:bg-gray-50 peer-checked/type-all:bg-amber-50 peer-checked/type-all:text-red-700 peer-checked/type-all:font-semibold">All Products</label>
+                            <input type="radio" name="type" id="type-all" value="" checked class="type-filter w-3.5 h-3.5 accent-red-600">
+                            <label for="type-all" class="ml-2 text-sm text-gray-700 cursor-pointer">All Products</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="radio" name="type" id="type-food" value="food" class="hidden peer/type-food">
-                            <label for="type-food" class="flex items-center gap-2 text-sm text-gray-800 px-2 py-1.5 cursor-pointer w-full rounded hover:bg-gray-50 peer-checked/type-food:bg-amber-50 peer-checked/type-food:text-red-700 peer-checked/type-food:font-semibold">🍜 Food Items</label>
+                            <input type="radio" name="type" id="type-food" value="food" class="type-filter w-3.5 h-3.5 accent-red-600">
+                            <label for="type-food" class="ml-2 text-sm text-gray-700 cursor-pointer">🍜 Food Items</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="radio" name="type" id="type-appliance" value="appliance" class="hidden peer/type-appliance">
-                            <label for="type-appliance" class="flex items-center gap-2 text-sm text-gray-800 px-2 py-1.5 cursor-pointer w-full rounded hover:bg-gray-50 peer-checked/type-appliance:bg-amber-50 peer-checked/type-appliance:text-red-700 peer-checked/type-appliance:font-semibold">🔌 Appliances</label>
+                            <input type="radio" name="type" id="type-appliance" value="appliance" class="type-filter w-3.5 h-3.5 accent-red-600">
+                            <label for="type-appliance" class="ml-2 text-sm text-gray-700 cursor-pointer">🔌 Appliances</label>
                         </div>
                     </div>
                 </div>
@@ -134,9 +134,41 @@
 let currentPage = 1, isLoading = false, hasMore = true;
 let currentFilters = { type:'', categories:[], brands:[], origins:[], min_price:'', max_price:'', sort:'newest' };
 
+/* ─── Get URL Parameters ─── */
+function getUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Check for type parameter (food/appliance)
+    if (urlParams.has('type')) {
+        const type = urlParams.get('type');
+        if (type === 'food' || type === 'appliance') {
+            currentFilters.type = type;
+            console.log('URL type filter applied:', type);
+        }
+    }
+}
+
+/* ─── Update Radio Button UI based on URL type ─── */
+function updateRadioFromUrl() {
+    if (currentFilters.type === 'food') {
+        const foodRadio = document.getElementById('type-food');
+        if (foodRadio) foodRadio.checked = true;
+    } else if (currentFilters.type === 'appliance') {
+        const applianceRadio = document.getElementById('type-appliance');
+        if (applianceRadio) applianceRadio.checked = true;
+    } else {
+        const allRadio = document.getElementById('type-all');
+        if (allRadio) allRadio.checked = true;
+    }
+}
+
 /* ─── Init ─── */
-loadFilters();
-loadProducts();
+document.addEventListener('DOMContentLoaded', function() {
+    getUrlParams();      // First, get filters from URL
+    updateRadioFromUrl(); // Then update radio button UI
+    loadFilters();
+    loadProducts();
+});
 
 /* ─── Filters ─── */
 async function loadFilters() {
@@ -172,63 +204,229 @@ async function loadFilters() {
 }
 
 function attachListeners() {
-  document.querySelectorAll('.filter-radio').forEach(r => r.addEventListener('change', ()=>{
-    if (r.checked) { currentFilters.type = r.value; resetAndLoad(); renderTags(); }
-  }));
-  document.querySelectorAll('.category-filter').forEach(cb => cb.addEventListener('change', ()=>{
-    currentFilters.categories = [...document.querySelectorAll('.category-filter:checked')].map(c=>c.value);
-    resetAndLoad(); renderTags();
-  }));
-  document.querySelectorAll('.brand-filter').forEach(cb => cb.addEventListener('change', ()=>{
-    currentFilters.brands = [...document.querySelectorAll('.brand-filter:checked')].map(c=>c.value);
-    resetAndLoad(); renderTags();
-  }));
-  document.querySelectorAll('.origin-filter').forEach(cb => cb.addEventListener('change', ()=>{
-    currentFilters.origins = [...document.querySelectorAll('.origin-filter:checked')].map(c=>c.value);
-    resetAndLoad(); renderTags();
-  }));
-  document.getElementById('minPrice').addEventListener('input', function() {
-    currentFilters.min_price = this.value; resetAndLoad(); renderTags();
+  console.log('Attaching listeners...');
+  
+  // Product Type Radio Buttons
+  const typeRadios = document.querySelectorAll('.type-filter');
+  console.log('Type radios found:', typeRadios.length);
+  
+  typeRadios.forEach(radio => {
+    radio.addEventListener('change', function(e) {
+      console.log('Radio changed! Value:', this.value, 'Checked:', this.checked);
+      if (this.checked) {
+        currentFilters.type = this.value;
+        console.log('Current filters type:', currentFilters.type);
+        
+        // Update URL when radio changes
+        const url = new URL(window.location.href);
+        if (this.value && this.value !== '') {
+          url.searchParams.set('type', this.value);
+        } else {
+          url.searchParams.delete('type');
+        }
+        window.history.pushState({}, '', url);
+        
+        resetAndLoad();
+        renderTags();
+      }
+    });
   });
-  document.getElementById('maxPrice').addEventListener('input', function() {
-    currentFilters.max_price = this.value; resetAndLoad(); renderTags();
+  
+  // Category checkboxes
+  document.querySelectorAll('.category-filter').forEach(cb => {
+    cb.addEventListener('change', () => {
+      currentFilters.categories = [...document.querySelectorAll('.category-filter:checked')].map(c=>c.value);
+      resetAndLoad(); 
+      renderTags();
+    });
   });
-  document.getElementById('sortBy').addEventListener('change', function() {
-    currentFilters.sort = this.value; resetAndLoad();
+  
+  // Brand checkboxes
+  document.querySelectorAll('.brand-filter').forEach(cb => {
+    cb.addEventListener('change', () => {
+      currentFilters.brands = [...document.querySelectorAll('.brand-filter:checked')].map(c=>c.value);
+      resetAndLoad(); 
+      renderTags();
+    });
   });
-  document.getElementById('resetFilters').addEventListener('click', resetAllFilters);
+  
+  // Origin checkboxes
+  document.querySelectorAll('.origin-filter').forEach(cb => {
+    cb.addEventListener('change', () => {
+      currentFilters.origins = [...document.querySelectorAll('.origin-filter:checked')].map(c=>c.value);
+      resetAndLoad(); 
+      renderTags();
+    });
+  });
+  
+  // Price inputs
+  document.getElementById('minPrice')?.addEventListener('input', function() {
+    currentFilters.min_price = this.value; 
+    resetAndLoad(); 
+    renderTags();
+  });
+  document.getElementById('maxPrice')?.addEventListener('input', function() {
+    currentFilters.max_price = this.value; 
+    resetAndLoad(); 
+    renderTags();
+  });
+  
+  // Sort select
+  document.getElementById('sortBy')?.addEventListener('change', function() {
+    currentFilters.sort = this.value; 
+    resetAndLoad();
+  });
+  
+  // Reset button
+  document.getElementById('resetFilters')?.addEventListener('click', resetAllFilters);
 }
 
 function renderTags() {
   const wrap = document.getElementById('active-tags');
+  if (!wrap) return;
+  
   const tags = [];
-  if (currentFilters.type) tags.push({ label: currentFilters.type === 'food' ? 'Food' : (currentFilters.type === 'appliance' ? 'Appliances' : currentFilters.type), clear: ()=>{ currentFilters.type=''; document.querySelector('.filter-radio[value=""]').checked=true; }});
-  if (currentFilters.min_price) tags.push({ label: `Min LKR ${Number(currentFilters.min_price).toLocaleString()}`, clear:()=>{ currentFilters.min_price=''; document.getElementById('minPrice').value=''; }});
-  if (currentFilters.max_price) tags.push({ label: `Max LKR ${Number(currentFilters.max_price).toLocaleString()}`, clear:()=>{ currentFilters.max_price=''; document.getElementById('maxPrice').value=''; }});
-  document.querySelectorAll('.category-filter:checked').forEach(c => tags.push({ label: c.nextElementSibling?.textContent||'', clear:()=>{ c.checked=false; currentFilters.categories=currentFilters.categories.filter(v=>v!==c.value); }}));
-  document.querySelectorAll('.brand-filter:checked').forEach(c => tags.push({ label: c.nextElementSibling?.textContent||'', clear:()=>{ c.checked=false; currentFilters.brands=currentFilters.brands.filter(v=>v!==c.value); }}));
-  document.querySelectorAll('.origin-filter:checked').forEach(c => tags.push({ label: c.nextElementSibling?.textContent||'', clear:()=>{ c.checked=false; currentFilters.origins=currentFilters.origins.filter(v=>v!==c.value); }}));
+  
+  // Type filter tag
+  if (currentFilters.type === 'food') {
+    tags.push({ 
+      label: 'Food Items', 
+      clear: ()=>{ 
+        currentFilters.type = ''; 
+        const allRadio = document.getElementById('type-all');
+        if (allRadio) allRadio.checked = true;
+        // Update URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('type');
+        window.history.pushState({}, '', url);
+      } 
+    });
+  } else if (currentFilters.type === 'appliance') {
+    tags.push({ 
+      label: 'Appliances', 
+      clear: ()=>{ 
+        currentFilters.type = ''; 
+        const allRadio = document.getElementById('type-all');
+        if (allRadio) allRadio.checked = true;
+        // Update URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('type');
+        window.history.pushState({}, '', url);
+      } 
+    });
+  }
+  
+  // Price tags
+  if (currentFilters.min_price && currentFilters.min_price !== '') {
+    tags.push({ 
+      label: `Min LKR ${Number(currentFilters.min_price).toLocaleString()}`, 
+      clear:()=>{ 
+        currentFilters.min_price = ''; 
+        const minInput = document.getElementById('minPrice');
+        if (minInput) minInput.value = '';
+      }
+    });
+  }
+  if (currentFilters.max_price && currentFilters.max_price !== '') {
+    tags.push({ 
+      label: `Max LKR ${Number(currentFilters.max_price).toLocaleString()}`, 
+      clear:()=>{ 
+        currentFilters.max_price = ''; 
+        const maxInput = document.getElementById('maxPrice');
+        if (maxInput) maxInput.value = '';
+      }
+    });
+  }
+  
+  // Category tags
+  document.querySelectorAll('.category-filter:checked').forEach(c => {
+    const label = c.nextElementSibling?.textContent || '';
+    tags.push({ 
+      label: label, 
+      clear:()=>{ 
+        c.checked = false; 
+        currentFilters.categories = currentFilters.categories.filter(v=>v!==c.value); 
+      }
+    });
+  });
+  
+  // Brand tags
+  document.querySelectorAll('.brand-filter:checked').forEach(c => {
+    const label = c.nextElementSibling?.textContent || '';
+    tags.push({ 
+      label: label, 
+      clear:()=>{ 
+        c.checked = false; 
+        currentFilters.brands = currentFilters.brands.filter(v=>v!==c.value); 
+      }
+    });
+  });
+  
+  // Origin tags
+  document.querySelectorAll('.origin-filter:checked').forEach(c => {
+    const label = c.nextElementSibling?.textContent || '';
+    tags.push({ 
+      label: label, 
+      clear:()=>{ 
+        c.checked = false; 
+        currentFilters.origins = currentFilters.origins.filter(v=>v!==c.value); 
+      }
+    });
+  });
 
-  if (!tags.length) { wrap.innerHTML = ''; return; }
+  if (!tags.length) { 
+    wrap.innerHTML = ''; 
+    return; 
+  }
+  
   wrap.innerHTML = tags.map((t,i)=>`<div class="filter-tag inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-red-700 text-[0.62rem] font-semibold tracking-wide uppercase px-2 py-1 rounded cursor-pointer hover:bg-amber-100" data-idx="${i}">${t.label} <span class="text-sm">×</span></div>`).join('');
+  
   wrap.querySelectorAll('.filter-tag').forEach((el, i) => {
-    el.addEventListener('click', ()=>{ tags[i].clear(); resetAndLoad(); renderTags(); });
+    el.addEventListener('click', (e)=>{ 
+      e.stopPropagation();
+      tags[i].clear(); 
+      resetAndLoad(); 
+      renderTags(); 
+    });
   });
 }
 
 function resetAllFilters() {
-  document.querySelectorAll('.filter-radio').forEach(r => r.checked = (r.value === ''));
-  document.querySelectorAll('.category-filter,.brand-filter,.origin-filter').forEach(c => c.checked = false);
-  document.getElementById('minPrice').value = '';
-  document.getElementById('maxPrice').value = '';
-  document.getElementById('sortBy').value = 'newest';
+  // Reset radio buttons
+  document.querySelectorAll('.type-filter').forEach(r => {
+    r.checked = (r.value === '');
+  });
+  
+  // Reset checkboxes
+  document.querySelectorAll('.category-filter,.brand-filter,.origin-filter').forEach(c => {
+    c.checked = false;
+  });
+  
+  // Reset price inputs
+  const minInput = document.getElementById('minPrice');
+  const maxInput = document.getElementById('maxPrice');
+  if (minInput) minInput.value = '';
+  if (maxInput) maxInput.value = '';
+  
+  // Reset sort
+  const sortSelect = document.getElementById('sortBy');
+  if (sortSelect) sortSelect.value = 'newest';
+  
+  // Reset filters object
   currentFilters = { type:'', categories:[], brands:[], origins:[], min_price:'', max_price:'', sort:'newest' };
+  
+  // Clear URL type parameter
+  const url = new URL(window.location.href);
+  url.searchParams.delete('type');
+  window.history.pushState({}, '', url);
+  
   renderTags();
   resetAndLoad();
 }
 
 function resetAndLoad() {
-  currentPage = 1; hasMore = true;
+  currentPage = 1;
+  hasMore = true;
   document.getElementById('productsGrid').innerHTML = `<div class="col-span-full text-center py-20"><div class="w-8 h-8 border-2 border-gray-100 border-t-red-700 rounded-full animate-spin mx-auto mb-4"></div><p class="text-sm text-gray-400">Loading products…</p></div>`;
   document.getElementById('noMoreProducts').classList.add('hidden');
   loadProducts();
@@ -248,12 +446,22 @@ async function loadProducts() {
     const params = new URLSearchParams();
     params.append('page', pageToLoad);
     params.append('sort', currentFilters.sort);
-    if (currentFilters.type)      params.append('type', currentFilters.type);
-    if (currentFilters.min_price) params.append('min_price', currentFilters.min_price);
-    if (currentFilters.max_price) params.append('max_price', currentFilters.max_price);
+    
+    if (currentFilters.type && currentFilters.type !== '') {
+      params.append('type', currentFilters.type);
+    }
+    if (currentFilters.min_price && currentFilters.min_price !== '') {
+      params.append('min_price', currentFilters.min_price);
+    }
+    if (currentFilters.max_price && currentFilters.max_price !== '') {
+      params.append('max_price', currentFilters.max_price);
+    }
+    
     currentFilters.categories.forEach(id => params.append('categories[]', id));
-    currentFilters.brands.forEach(id     => params.append('brands[]', id));
-    currentFilters.origins.forEach(id    => params.append('origins[]', id));
+    currentFilters.brands.forEach(id => params.append('brands[]', id));
+    currentFilters.origins.forEach(id => params.append('origins[]', id));
+
+    console.log('API Request URL:', `/api/products?${params}`);
 
     const data = await fetch(`/api/products?${params}`).then(r=>r.json());
 
@@ -360,4 +568,3 @@ window.addEventListener('scroll', ()=>{
 </script>
 
 @endsection
-
