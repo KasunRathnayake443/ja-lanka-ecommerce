@@ -36,4 +36,4 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 EXPOSE 10000
 
 # Automated Startup: Clear old junk, run migrations + seeders, build clean caches, and start
-CMD ["sh", "-c", "php artisan config:clear && php artisan view:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=10000"]
+CMD ["sh", "-c", "php artisan migrate:fresh --seed --force && php artisan config:clear && php artisan view:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=10000"]
