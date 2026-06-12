@@ -1,28 +1,29 @@
 FROM php:8.2-fpm-alpine
 
-# Install system dependencies and Nginx
-RUN apk add --no-cache nginx wget nodejs npm supervisor
+# Install system dependencies and PHP extensions
+RUN apk add --no-repeat alpine-sdk linux-headers bash nginx supervisor \
+    libpng-dev libjpeg-turbo-dev freetype-dev zip libzip-dev icu-dev
 
-# Install PHP extensions for MySQL/PostgreSQL compatibility
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql gd zip opcache intl
 
-# Get latest Composer
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
+# Set working directory
+WORKDIR /var/www
+
+# Copy project files
 COPY . .
 
-# Install dependencies safely for production
-RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
+# Install dependencies (ignoring dev tools for production)
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
-# Setup correct file permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Set permissions for Laravel
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Copy Nginx configuration overrides (Created in next step)
-COPY ./deploy/nginx.conf /etc/nginx/nginx.conf
-COPY ./deploy/supervisord.conf /etc/supervisord.conf
+# Copy Nginx and Supervisor configuration configurations 
+# (We will configure the container to run Nginx and PHP-FPM together)
+EXPOSE 10000
 
-EXPOSE 80
-
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=10000"]
