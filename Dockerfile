@@ -23,11 +23,17 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-pl
 # Frontend Build Step: Install npm packages and compile assets with Vite
 RUN npm install && npm run build
 
-# Set permissions for Laravel storage and cache
+# Crucial Fix: Ensure all necessary Laravel storage subdirectories exist
+RUN mkdir -p /var/www/storage/framework/cache/data \
+    && mkdir -p /var/www/storage/framework/sessions \
+    && mkdir -p /var/www/storage/framework/views \
+    && mkdir -p /var/www/storage/logs
+
+# Set tight permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose the default Render port
 EXPOSE 10000
 
-# Automated Startup: Run database migrations + seeders, clear/build caches, and start the app
-CMD ["sh", "-c", "php artisan migrate:fresh --seed --force && php artisan serve --host=0.0.0.0 --port=10000"]
+# Automated Startup: Clear old junk, run migrations + seeders, build clean caches, and start
+CMD ["sh", "-c", "php artisan config:clear && php artisan view:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=10000"]
