@@ -1,7 +1,7 @@
 FROM php:8.4-fpm-alpine
 
-# Install system dependencies and PHP extensions required by Laravel
-RUN apk add --no-cache alpine-sdk linux-headers bash nginx supervisor \
+# Install system dependencies, PHP extensions, and Node.js/NPM
+RUN apk add --no-cache alpine-sdk linux-headers bash nginx supervisor nodejs npm \
     libpng-dev libjpeg-turbo-dev freetype-dev zip libzip-dev icu-dev libxml2-dev oniguruma-dev
 
 # Install required PHP extensions for Laravel & MySQL
@@ -17,8 +17,11 @@ WORKDIR /var/www
 # Copy all project files into the container
 COPY . .
 
-# Install dependencies ignoring platform checks to prevent build-time blocks
+# Install PHP dependencies ignoring platform checks to prevent build-time blocks
 RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-platform-reqs
+
+# Frontend Build Step: Install npm packages and compile assets with Vite
+RUN npm install && npm run build
 
 # Set permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
