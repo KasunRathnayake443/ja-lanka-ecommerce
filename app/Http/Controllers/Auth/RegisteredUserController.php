@@ -28,25 +28,29 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
-
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
-
-    event(new Registered($user));
-
-    Auth::login($user);
-
-    // Change this line
-    return redirect(route('account.dashboard'));
-}
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+    
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+    
+        event(new Registered($user));
+    
+        Auth::login($user);
+    
+        // Check if mobile and redirect accordingly
+        if (isMobile()) {
+            return redirect(route('mobile.account.dashboard'));
+        }
+    
+        return redirect(route('account.dashboard'));
+    }
 }

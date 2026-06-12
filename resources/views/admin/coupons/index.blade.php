@@ -75,9 +75,12 @@
                     <td class="px-6 py-4 text-right">
                         <a href="{{ route('admin.coupons.edit', $coupon->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">Edit</a>
                         <a href="{{ route('admin.coupons.usage', $coupon->id) }}" class="text-green-600 hover:text-green-900 mr-2">Usage</a>
-                        <a href="{{ route('admin.coupons.toggle-status', $coupon->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-2" onclick="return confirm('Toggle coupon status?')">
-                            {{ $coupon->is_active ? 'Disable' : 'Enable' }}
-                        </a>
+                        <form action="{{ route('admin.coupons.toggle-status', $coupon->id) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="text-yellow-600 hover:text-yellow-900 mr-2" onclick="return confirm('Toggle coupon status?')">
+                                {{ $coupon->is_active ? 'Disable' : 'Enable' }}
+                            </button>
+                        </form>
                         <form action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')

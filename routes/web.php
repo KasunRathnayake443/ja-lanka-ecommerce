@@ -15,6 +15,7 @@ use App\Http\Controllers\User\AccountController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Mobile\AccountController as MobileAccountController;
+use App\Http\Controllers\Mobile\CheckoutController as MobileCheckoutController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Admin\OrderController;
@@ -69,6 +70,9 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     });
+
+    // Search API
+    Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
 });
 
 // ========== DESKTOP ACCOUNT ROUTES ==========
@@ -136,6 +140,16 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         Route::put('/address/{id}', [MobileAccountController::class, 'updateAddress'])->name('address.update');
         Route::delete('/address/{id}', [MobileAccountController::class, 'deleteAddress'])->name('address.delete');
         Route::put('/address/{id}/set-default', [MobileAccountController::class, 'setDefault'])->name('address.set-default');
+    });
+
+    // Mobile Checkout Routes
+    Route::prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Mobile\CheckoutController::class, 'index'])->name('index');
+        Route::post('/place-order', [App\Http\Controllers\Mobile\CheckoutController::class, 'placeOrder'])->name('place-order');
+        Route::get('/success/{orderId}', [App\Http\Controllers\Mobile\CheckoutController::class, 'success'])->name('success');
+        Route::get('/payment/{orderId}', [App\Http\Controllers\Mobile\CheckoutController::class, 'payment'])->name('payment');
+        Route::post('/apply-coupon', [App\Http\Controllers\Mobile\CheckoutController::class, 'applyCoupon'])->name('apply-coupon');
+        Route::post('/remove-coupon', [App\Http\Controllers\Mobile\CheckoutController::class, 'removeCoupon'])->name('remove-coupon');
     });
 });
 

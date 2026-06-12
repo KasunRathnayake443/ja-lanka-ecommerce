@@ -22,8 +22,18 @@ class Coupon extends Model
         'minimum_order' => 'decimal:2',
         'discount_value' => 'decimal:2',
         'maximum_discount' => 'decimal:2',
+        'used_count' => 'integer',
     ];
 
+    // ========== RELATIONSHIPS ==========
+    
+    public function usages()
+    {
+        return $this->hasMany(CouponUsage::class);
+    }
+
+    // ========== METHODS ==========
+    
     // Check if coupon is valid
     public function isValid($subtotal, $userId = null)
     {

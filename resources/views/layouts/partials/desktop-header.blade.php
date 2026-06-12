@@ -115,16 +115,26 @@
             </div>
         </div>
         
-        <!-- Search Bar -->
+        <!-- Search Bar with Results -->
         <div id="desktopSearchBar" class="hidden mt-4">
             <div class="relative">
                 <input type="text" id="desktopSearchInput" placeholder="Search for products..." 
+                       autocomplete="off"
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500">
                 <button onclick="toggleSearch()" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
+                
+                <!-- Search Results Dropdown -->
+                <div id="desktopSearchResults" class="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-96 overflow-y-auto hidden z-50">
+                    <div class="p-3 text-sm text-gray-500 text-center" id="desktopSearchLoading" style="display: none;">
+                        <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
+                        Searching...
+                    </div>
+                    <div id="desktopSearchResultsList"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -145,12 +155,98 @@
     document.addEventListener('click', function(event) {
         const searchBar = document.getElementById('desktopSearchBar');
         const searchBtn = document.getElementById('desktopSearchBtn');
+        const searchResults = document.getElementById('desktopSearchResults');
         if (searchBar && !searchBar.classList.contains('hidden')) {
             if (!searchBar.contains(event.target) && !searchBtn?.contains(event.target)) {
                 searchBar.classList.add('hidden');
+                if (searchResults) searchResults.classList.add('hidden');
             }
         }
     });
+    
+    // ========== LIVE SEARCH FUNCTIONALITY ==========
+    const desktopSearchInput = document.getElementById('desktopSearchInput');
+    const desktopSearchResults = document.getElementById('desktopSearchResults');
+    const desktopSearchResultsList = document.getElementById('desktopSearchResultsList');
+    const desktopSearchLoading = document.getElementById('desktopSearchLoading');
+    let desktopSearchTimeout = null;
+
+    if (desktopSearchInput) {
+        desktopSearchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            if (desktopSearchTimeout) clearTimeout(desktopSearchTimeout);
+            
+            if (query.length < 2) {
+                desktopSearchResults.classList.add('hidden');
+                return;
+            }
+            
+            desktopSearchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 300);
+        });
+    }
+
+    async function performSearch(query) {
+        desktopSearchLoading.style.display = 'block';
+        desktopSearchResultsList.innerHTML = '';
+        desktopSearchResults.classList.remove('hidden');
+        
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const products = await response.json();
+            
+            desktopSearchLoading.style.display = 'none';
+            
+            if (products.length === 0) {
+                desktopSearchResultsList.innerHTML = '<div class="p-4 text-center text-gray-500">No products found</div>';
+                return;
+            }
+            
+            let html = '';
+            products.forEach(product => {
+                const imageUrl = product.images && product.images[0] 
+                    ? `/storage/${product.images[0].image_path}` 
+                    : '/images/placeholder.jpg';
+                
+                const hasSale = product.discount_percent > 0;
+                const priceHtml = hasSale
+                    ? `<div>
+                          <span class="text-red-600 font-semibold">LKR ${parseFloat(product.current_price).toLocaleString()}</span>
+                          <span class="text-gray-400 text-xs line-through ml-1">LKR ${parseFloat(product.regular_price).toLocaleString()}</span>
+                       </div>`
+                    : `<div class="text-gray-800 font-semibold">LKR ${parseFloat(product.regular_price).toLocaleString()}</div>`;
+                
+                html += `
+                    <a href="/product/${product.slug}" class="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-100 last:border-0 transition" onclick="document.getElementById('desktopSearchBar').classList.add('hidden')">
+                        <img src="${imageUrl}" class="w-12 h-12 object-cover rounded" onerror="this.src='/images/placeholder.jpg'">
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800 text-sm">${escapeHtml(product.name)}</div>
+                            ${priceHtml}
+                        </div>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                `;
+            });
+            
+            desktopSearchResultsList.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            desktopSearchLoading.style.display = 'none';
+            desktopSearchResultsList.innerHTML = '<div class="p-4 text-center text-red-500">Error loading results</div>';
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
     
     // Change header style on scroll (only for homepage)
     @if(request()->routeIs('home'))
