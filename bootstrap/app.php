@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\DetectMobile;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\RedirectIfNotAdmin;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'guest' => RedirectIfAuthenticated::class,
             'guest.admin' => RedirectIfNotAdmin::class,
+            'detect.mobile' => \App\Http\Middleware\DetectMobile::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

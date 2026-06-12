@@ -22,77 +22,99 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
 use Illuminate\Support\Facades\Route;
 
-// ========== DESKTOP ROUTES ==========
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// ========== DESKTOP ROUTES (with mobile detection) ==========
+Route::middleware(['detect.mobile'])->group(function () {
+    
+    Route::get('/', function () {
+        return view('home');
+    })->name('home');
 
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
+    Route::get('/about', function () {
+        return view('about');
+    })->name('about');
 
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
+    Route::get('/contact', function () {
+        return view('contact');
+    })->name('contact');
 
-Route::get('/shop', function () {
-    return view('product.shop');
-})->name('shop');
+    Route::get('/shop', function () {
+        return view('product.shop');
+    })->name('shop');
 
-Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+    Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
-Route::get('/sale', function () {
-    return view('product.sale');
-})->name('sale');
+    Route::get('/sale', function () {
+        return view('product.sale');
+    })->name('sale');
 
-// ========== API ROUTES ==========
-Route::prefix('api')->name('api.')->group(function () {
-    // FILTERS must come before /products to avoid route conflict
-    Route::get('/products/filters', [ProductController::class, 'getFilters'])->name('products.filters');
-    Route::get('/products', [ProductController::class, 'getProducts'])->name('products');
-    Route::get('/search', [ProductController::class, 'search'])->name('search');
+    // ========== API ROUTES ==========
+    Route::prefix('api')->name('api.')->group(function () {
+        // FILTERS must come before /products to avoid route conflict
+        Route::get('/products/filters', [ProductController::class, 'getFilters'])->name('products.filters');
+        Route::get('/products', [ProductController::class, 'getProducts'])->name('products');
+        Route::get('/search', [ProductController::class, 'search'])->name('search');
 
-    // Banners API
-    Route::get('/banners', [BannerController::class, 'getActiveBanners']);
+        // Banners API
+        Route::get('/banners', [BannerController::class, 'getActiveBanners']);
 
-    // Flash Sale API (for frontend)
-    Route::get('/flash-sales', [FlashSaleController::class, 'getActiveBanners']);
+        // Flash Sale API (for frontend)
+        Route::get('/flash-sales', [FlashSaleController::class, 'getActiveBanners']);
 
-    // Cart API
-    Route::get('/cart', [CartController::class, 'getCart'])->name('cart');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
+        // Cart API
+        Route::get('/cart', [CartController::class, 'getCart'])->name('cart');
+        Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+        Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
-    // Wishlist API
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/wishlist', [WishlistController::class, 'getWishlist'])->name('wishlist');
-        Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-        Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+        // Wishlist API
+        Route::middleware(['auth'])->group(function () {
+            Route::get('/wishlist', [WishlistController::class, 'getWishlist'])->name('wishlist');
+            Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+            Route::delete('/wishlist/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+        });
+
+        // Search API
+        Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
     });
 
-    // Search API
-    Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
+    // ========== DESKTOP ACCOUNT ROUTES ==========
+    Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
+        Route::get('/dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
+        Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
+        Route::get('/orders/{id}', [AccountController::class, 'orderDetail'])->name('order.detail');
+        Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
+        Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+        Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [AccountController::class, 'changePassword'])->name('password.update');
+        Route::get('/addresses', [AddressController::class, 'index'])->name('addresses');
+        Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+        Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
+        Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+        Route::put('/addresses/{id}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
+        Route::post('/addresses/geocode', [AddressController::class, 'geocode'])->name('addresses.geocode');
+    });
+
+    // ========== CHECKOUT ROUTES ==========
+    Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/', [CheckoutController::class, 'index'])->name('index');
+        Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('place-order');
+        Route::get('/success/{orderId}', [CheckoutController::class, 'success'])->name('success');
+        Route::get('/payment/{orderId}', [CheckoutController::class, 'payment'])->name('payment');
+        
+        // Coupon routes
+        Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('apply-coupon');
+        Route::post('/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('remove-coupon');
+    });
+
+    // ========== FOOD ROUTES ==========
+    Route::prefix('food')->name('food.')->group(function () {
+        Route::get('/', [FoodController::class, 'index'])->name('index');
+        Route::get('/{slug}', [FoodController::class, 'show'])->name('show');
+    });
+    
 });
 
-// ========== DESKTOP ACCOUNT ROUTES ==========
-Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
-    Route::get('/dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
-    Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
-    Route::get('/orders/{id}', [AccountController::class, 'orderDetail'])->name('order.detail');
-    Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
-    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
-    Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
-    Route::put('/password', [AccountController::class, 'changePassword'])->name('password.update');
-    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses');
-    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
-    Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
-    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
-    Route::put('/addresses/{id}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
-    Route::post('/addresses/geocode', [AddressController::class, 'geocode'])->name('addresses.geocode');
-});
-
-// ========== MOBILE ROUTES ==========
+// ========== MOBILE ROUTES (No mobile detection on these) ==========
 Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/', function () {
         return view('mobile.home');
@@ -144,34 +166,16 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
 
     // Mobile Checkout Routes
     Route::prefix('checkout')->name('checkout.')->group(function () {
-        Route::get('/', [App\Http\Controllers\Mobile\CheckoutController::class, 'index'])->name('index');
-        Route::post('/place-order', [App\Http\Controllers\Mobile\CheckoutController::class, 'placeOrder'])->name('place-order');
-        Route::get('/success/{orderId}', [App\Http\Controllers\Mobile\CheckoutController::class, 'success'])->name('success');
-        Route::get('/payment/{orderId}', [App\Http\Controllers\Mobile\CheckoutController::class, 'payment'])->name('payment');
-        Route::post('/apply-coupon', [App\Http\Controllers\Mobile\CheckoutController::class, 'applyCoupon'])->name('apply-coupon');
-        Route::post('/remove-coupon', [App\Http\Controllers\Mobile\CheckoutController::class, 'removeCoupon'])->name('remove-coupon');
+        Route::get('/', [MobileCheckoutController::class, 'index'])->name('index');
+        Route::post('/place-order', [MobileCheckoutController::class, 'placeOrder'])->name('place-order');
+        Route::get('/success/{orderId}', [MobileCheckoutController::class, 'success'])->name('success');
+        Route::get('/payment/{orderId}', [MobileCheckoutController::class, 'payment'])->name('payment');
+        Route::post('/apply-coupon', [MobileCheckoutController::class, 'applyCoupon'])->name('apply-coupon');
+        Route::post('/remove-coupon', [MobileCheckoutController::class, 'removeCoupon'])->name('remove-coupon');
     });
 });
 
-// ========== FOOD ROUTES ==========
-Route::prefix('food')->name('food.')->group(function () {
-    Route::get('/', [FoodController::class, 'index'])->name('index');
-    Route::get('/{slug}', [FoodController::class, 'show'])->name('show');
-});
-
-// ========== CHECKOUT ROUTES ==========
-Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
-    Route::get('/', [CheckoutController::class, 'index'])->name('index');
-    Route::post('/place-order', [CheckoutController::class, 'placeOrder'])->name('place-order');
-    Route::get('/success/{orderId}', [CheckoutController::class, 'success'])->name('success');
-    Route::get('/payment/{orderId}', [CheckoutController::class, 'payment'])->name('payment');
-    
-    // Coupon routes
-    Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('apply-coupon');
-    Route::post('/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('remove-coupon');
-});
-
-// ========== ADMIN ROUTES ==========
+// ========== ADMIN ROUTES (No mobile detection) ==========
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('login', [AuthController::class, 'login'])->name('login.submit');
@@ -224,9 +228,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('coupons', CouponController::class);
         Route::post('/coupons/{id}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
         Route::get('/coupons/{id}/usage', [CouponController::class, 'usage'])->name('coupons.usage');
-            });
-
-    
+    });
 });
 
 require __DIR__.'/auth.php';
