@@ -1,7 +1,7 @@
 FROM php:8.2-fpm-alpine
 
 # Install system dependencies and PHP extensions
-RUN apk add --no-repeat alpine-sdk linux-headers bash nginx supervisor \
+RUN apk add --no-cache alpine-sdk linux-headers bash nginx supervisor \
     libpng-dev libjpeg-turbo-dev freetype-dev zip libzip-dev icu-dev
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
