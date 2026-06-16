@@ -286,7 +286,6 @@ class OrderController extends Controller
      */
     public function storeManual(Request $request)
     {
-        dd($request->all());
         $request->validate([
             'user_type' => 'required|in:existing,guest',
             'user_id' => 'required_if:user_type,existing|exists:users,id',

@@ -21,6 +21,7 @@ use App\Http\Controllers\Mobile\CheckoutController as MobileCheckoutController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 // ========== DESKTOP ROUTES ==========
 Route::middleware(['detect.mobile'])->group(function () {
@@ -193,6 +194,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('coupons/{id}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
         Route::get('coupons/{id}/usage',          [CouponController::class, 'usage'])->name('coupons.usage');
     });
+
+  
+
+// Auto-migrate when you hit https://your-site.infinityfreeapp.com/run-migrations
+Route::get('/run-migrations', function () {
+    if (config('app.env') === 'production' && !config('app.debug')) {
+        // Optional safety check: Ensure this doesn't run casually in true production
+    }
+
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return 'Migrations completed successfully!<br><pre>' . Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Error running migrations: ' . $e->getMessage();
+    }
+});
+
 });
 
 require __DIR__.'/auth.php';
