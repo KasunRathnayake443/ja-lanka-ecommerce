@@ -116,6 +116,56 @@
                 </div>
             </div>
             
+            <!-- NEW: Suppliers Section -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium mb-4">🏭 Suppliers</h3>
+                <p class="text-sm text-gray-500 mb-4">Assign suppliers to this product. A product can have multiple suppliers.</p>
+                
+                <div id="suppliersContainer">
+                    <div class="supplier-row bg-gray-50 rounded-lg p-4 mb-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
+                                <select name="suppliers[0][supplier_id]" class="w-full px-3 py-2 border rounded-lg supplier-select">
+                                    <option value="">Select Supplier</option>
+                                    @foreach($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                                <input type="text" name="suppliers[0][supplier_sku]" placeholder="Supplier's product code" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier Price (LKR)</label>
+                                <input type="number" name="suppliers[0][supplier_price]" step="0.01" placeholder="Cost from supplier" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (Days)</label>
+                                <input type="number" name="suppliers[0][lead_time_days]" placeholder="Delivery days" class="w-full px-3 py-2 border rounded-lg">
+                            </div>
+                            <div class="flex items-center">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="suppliers[0][is_default]" value="1" class="mr-2">
+                                    <span class="text-sm">Default Supplier</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-end">
+                                <button type="button" onclick="removeSupplier(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" onclick="addSupplierRow()" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Another Supplier
+                </button>
+            </div>
+            
             <!-- Product Images -->
             <div class="border-t pt-6">
                 <h3 class="text-lg font-medium mb-4">🖼️ Product Images</h3>
@@ -167,13 +217,16 @@
 
 <script>
 let attributeIndex = 1;
+let supplierIndex = 1;
 
 function toggleProductType() {
-    const type = document.querySelector('input[name="type"]:checked').value;
+    const type = document.querySelector('input[name="type"]:checked');
+    if (!type) return;
+    
     const brandField = document.getElementById('brandField');
     const originField = document.getElementById('originField');
     
-    if (type === 'appliance') {
+    if (type.value === 'appliance') {
         brandField.style.display = 'block';
         originField.style.display = 'none';
     } else {
@@ -199,6 +252,58 @@ function removeAttribute(button) {
     button.closest('.attribute-row').remove();
 }
 
+// Supplier Functions
+function addSupplierRow() {
+    const container = document.getElementById('suppliersContainer');
+    const newRow = document.createElement('div');
+    newRow.className = 'supplier-row bg-gray-50 rounded-lg p-4 mb-3';
+    newRow.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
+                <select name="suppliers[${supplierIndex}][supplier_id]" class="w-full px-3 py-2 border rounded-lg supplier-select">
+                    <option value="">Select Supplier</option>
+                    @foreach($suppliers as $supplier)
+                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                <input type="text" name="suppliers[${supplierIndex}][supplier_sku]" placeholder="Supplier's product code" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier Price (LKR)</label>
+                <input type="number" name="suppliers[${supplierIndex}][supplier_price]" step="0.01" placeholder="Cost from supplier" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (Days)</label>
+                <input type="number" name="suppliers[${supplierIndex}][lead_time_days]" placeholder="Delivery days" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div class="flex items-center">
+                <label class="flex items-center">
+                    <input type="checkbox" name="suppliers[${supplierIndex}][is_default]" value="1" class="mr-2">
+                    <span class="text-sm">Default Supplier</span>
+                </label>
+            </div>
+            <div class="flex items-center justify-end">
+                <button type="button" onclick="removeSupplier(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(newRow);
+    supplierIndex++;
+}
+
+function removeSupplier(button) {
+    const row = button.closest('.supplier-row');
+    if (document.querySelectorAll('.supplier-row').length > 1) {
+        row.remove();
+    } else {
+        alert('You must have at least one supplier row. To remove, select "None" from the dropdown.');
+    }
+}
+
 function previewImages() {
     const preview = document.getElementById('imagePreview');
     preview.innerHTML = '';
@@ -209,13 +314,11 @@ function previewImages() {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Validate file type
         if (!file.type.match('image.*')) {
             alert('File "' + file.name + '" is not an image. Skipping.');
             continue;
         }
         
-        // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             alert('File "' + file.name + '" is too large (max 5MB). Skipping.');
             continue;
@@ -235,40 +338,5 @@ function previewImages() {
         reader.readAsDataURL(file);
     }
 }
-
-function previewNewImages() {
-    const preview = document.getElementById('newImagePreview');
-    preview.innerHTML = '';
-    const files = document.getElementById('new_images').files;
-    
-    if (files.length === 0) return;
-    
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        
-        if (!file.type.match('image.*')) {
-            alert('File "' + file.name + '" is not an image. Skipping.');
-            continue;
-        }
-        
-        if (file.size > 5 * 1024 * 1024) {
-            alert('File "' + file.name + '" is too large (max 5MB). Skipping.');
-            continue;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'relative border rounded-lg p-2';
-            div.innerHTML = `
-                <img src="${e.target.result}" class="w-full h-32 object-cover rounded">
-                <div class="text-xs text-gray-500 mt-1 text-center truncate">${file.name}</div>
-            `;
-            preview.appendChild(div);
-        }
-        reader.readAsDataURL(file);
-    }
-}
-
 </script>
 @endsection

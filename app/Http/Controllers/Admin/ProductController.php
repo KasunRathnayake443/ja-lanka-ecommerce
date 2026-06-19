@@ -9,6 +9,7 @@ use App\Models\Inventory;
 use App\Models\Origin;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -30,8 +31,9 @@ class ProductController extends Controller
         $categories = Category::where('is_active', true)->get();
         $brands = Brand::where('is_active', true)->get();
         $origins = Origin::where('is_active', true)->get();
+        $suppliers = Supplier::where('is_active', true)->orderBy('name')->get(); // NEW
 
-        return view('admin.products.create', compact('categories', 'brands', 'origins'));
+        return view('admin.products.create', compact('categories', 'brands', 'origins', 'suppliers')); // UPDATED
     }
 
     public function store(Request $request)
@@ -74,6 +76,24 @@ class ProductController extends Controller
             'reorder_level' => $request->reorder_level ?? 5,
         ]);
 
+        // NEW: Sync suppliers
+        if ($request->has('suppliers')) {
+            $supplierData = [];
+            foreach ($request->suppliers as $index => $data) {
+                if (!empty($data['supplier_id'])) {
+                    $supplierData[$data['supplier_id']] = [
+                        'supplier_sku' => $data['supplier_sku'] ?? null,
+                        'supplier_price' => $data['supplier_price'] ?? null,
+                        'lead_time_days' => $data['lead_time_days'] ?? null,
+                        'is_default' => isset($data['is_default']) && $data['is_default'] == '1',
+                    ];
+                }
+            }
+            if (!empty($supplierData)) {
+                $product->suppliers()->sync($supplierData);
+            }
+        }
+
         // Save dynamic attributes
         if ($request->has('attributes')) {
             foreach ($request->attributes as $attribute) {
@@ -86,13 +106,12 @@ class ProductController extends Controller
             }
         }
 
-        // Upload images - IMPROVED
+        // Upload images
         if ($request->hasFile('images')) {
             $isMain = true;
             foreach ($request->file('images') as $image) {
                 if ($image && $image->isValid()) {
                     try {
-                        // Generate unique filename
                         $filename = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
                         $path = $image->storeAs('products', $filename, 'public');
 
@@ -118,12 +137,13 @@ class ProductController extends Controller
 
     public function edit($id)
     {
-        $product = Product::with(['attributes', 'images', 'inventory'])->findOrFail($id);
+        $product = Product::with(['attributes', 'images', 'inventory', 'suppliers'])->findOrFail($id); // UPDATED
         $categories = Category::where('is_active', true)->get();
         $brands = Brand::where('is_active', true)->get();
         $origins = Origin::where('is_active', true)->get();
+        $suppliers = Supplier::where('is_active', true)->orderBy('name')->get(); // NEW
 
-        return view('admin.products.edit', compact('product', 'categories', 'brands', 'origins'));
+        return view('admin.products.edit', compact('product', 'categories', 'brands', 'origins', 'suppliers')); // UPDATED
     }
 
     public function update(Request $request, $id)
@@ -162,7 +182,29 @@ class ProductController extends Controller
             ]);
         }
 
-        // Update attributes - delete old and add new
+        // NEW: Sync suppliers
+        if ($request->has('suppliers')) {
+            $supplierData = [];
+            foreach ($request->suppliers as $index => $data) {
+                if (!empty($data['supplier_id'])) {
+                    $supplierData[$data['supplier_id']] = [
+                        'supplier_sku' => $data['supplier_sku'] ?? null,
+                        'supplier_price' => $data['supplier_price'] ?? null,
+                        'lead_time_days' => $data['lead_time_days'] ?? null,
+                        'is_default' => isset($data['is_default']) && $data['is_default'] == '1',
+                    ];
+                }
+            }
+            if (!empty($supplierData)) {
+                $product->suppliers()->sync($supplierData);
+            } else {
+                $product->suppliers()->detach();
+            }
+        } else {
+            $product->suppliers()->detach();
+        }
+
+        // Update attributes
         if ($request->has('attributes')) {
             $product->attributes()->delete();
             foreach ($request->attributes as $attribute) {
@@ -175,7 +217,7 @@ class ProductController extends Controller
             }
         }
 
-        // Upload new images - IMPROVED
+        // Upload new images
         if ($request->hasFile('new_images')) {
             foreach ($request->file('new_images') as $image) {
                 if ($image && $image->isValid()) {
@@ -203,7 +245,6 @@ class ProductController extends Controller
             foreach ($request->delete_images as $imageId) {
                 $image = ProductImage::find($imageId);
                 if ($image) {
-                    // Delete file from storage
                     $filePath = storage_path('app/public/'.$image->image_path);
                     if (file_exists($filePath)) {
                         unlink($filePath);

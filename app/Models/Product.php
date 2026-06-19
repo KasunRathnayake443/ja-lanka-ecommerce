@@ -79,4 +79,35 @@ class Product extends Model
     {
         return $this->hasActiveSale() ? $this->sale_price : $this->regular_price;
     }
+
+
+/**
+ * Get the suppliers for this product.
+ */
+public function suppliers()
+{
+    return $this->belongsToMany(Supplier::class, 'product_supplier')
+        ->withPivot('supplier_sku', 'supplier_price', 'lead_time_days', 'is_default')
+        ->withTimestamps();
+}
+
+/**
+ * Get the default supplier for this product.
+ */
+public function defaultSupplier()
+{
+    return $this->belongsToMany(Supplier::class, 'product_supplier')
+        ->withPivot('supplier_sku', 'supplier_price', 'lead_time_days', 'is_default')
+        ->wherePivot('is_default', true)
+        ->withTimestamps()
+        ->first();
+}
+
+/**
+ * Check if product has any supplier.
+ */
+public function hasSupplier()
+{
+    return $this->suppliers()->exists();
+}
 }

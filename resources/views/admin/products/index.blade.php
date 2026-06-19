@@ -68,6 +68,10 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right">
+                    <a href="{{ route('admin.stock.restock', $product->id) }}" 
+                        class="text-blue-600 hover:text-blue-900 mr-3">
+                            Restock
+                        </a>
                         <a href="{{ route('admin.products.edit', $product->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
                         <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="inline">
                             @csrf

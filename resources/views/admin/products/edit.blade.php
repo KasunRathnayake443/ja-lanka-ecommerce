@@ -7,6 +7,8 @@
     <div class="px-6 py-4 border-b bg-gray-50">
         <h2 class="text-xl font-semibold">Edit Product: {{ $product->name }}</h2>
     </div>
+
+
     
     <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -19,6 +21,17 @@
                 <span class="ml-2 px-2 py-1 text-sm rounded-full {{ $product->type == 'food' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
                     {{ ucfirst($product->type) }}
                 </span>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="{{ route('admin.stock.restock', $product->id) }}" 
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                    🔄 Restock Product
+                </a>
+                <a href="{{ route('admin.products.index') }}" 
+                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">
+                    Back
+                </a>
             </div>
             
             <!-- Basic Information -->
@@ -110,6 +123,97 @@
                 </div>
             </div>
             
+            <!-- NEW: Suppliers Section -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium mb-4">🏭 Suppliers</h3>
+                <p class="text-sm text-gray-500 mb-4">Manage suppliers for this product. A product can have multiple suppliers.</p>
+                
+                <div id="suppliersContainer">
+                    @if($product->suppliers->count() > 0)
+                        @foreach($product->suppliers as $index => $supplier)
+                        <div class="supplier-row bg-gray-50 rounded-lg p-4 mb-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
+                                    <select name="suppliers[{{ $index }}][supplier_id]" class="w-full px-3 py-2 border rounded-lg supplier-select">
+                                        <option value="">Select Supplier</option>
+                                        @foreach($suppliers as $s)
+                                            <option value="{{ $s->id }}" {{ $supplier->id == $s->id ? 'selected' : '' }}>
+                                                {{ $s->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                                    <input type="text" name="suppliers[{{ $index }}][supplier_sku]" value="{{ $supplier->pivot->supplier_sku }}" placeholder="Supplier's product code" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier Price (LKR)</label>
+                                    <input type="number" name="suppliers[{{ $index }}][supplier_price]" step="0.01" value="{{ $supplier->pivot->supplier_price }}" placeholder="Cost from supplier" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (Days)</label>
+                                    <input type="number" name="suppliers[{{ $index }}][lead_time_days]" value="{{ $supplier->pivot->lead_time_days }}" placeholder="Delivery days" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div class="flex items-center">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="suppliers[{{ $index }}][is_default]" value="1" {{ $supplier->pivot->is_default ? 'checked' : '' }} class="mr-2">
+                                        <span class="text-sm">Default Supplier</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-end">
+                                    <button type="button" onclick="removeSupplier(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="supplier-row bg-gray-50 rounded-lg p-4 mb-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
+                                    <select name="suppliers[0][supplier_id]" class="w-full px-3 py-2 border rounded-lg supplier-select">
+                                        <option value="">Select Supplier</option>
+                                        @foreach($suppliers as $s)
+                                            <option value="{{ $s->id }}">{{ $s->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                                    <input type="text" name="suppliers[0][supplier_sku]" placeholder="Supplier's product code" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier Price (LKR)</label>
+                                    <input type="number" name="suppliers[0][supplier_price]" step="0.01" placeholder="Cost from supplier" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (Days)</label>
+                                    <input type="number" name="suppliers[0][lead_time_days]" placeholder="Delivery days" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div class="flex items-center">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="suppliers[0][is_default]" value="1" class="mr-2">
+                                        <span class="text-sm">Default Supplier</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-end">
+                                    <button type="button" onclick="removeSupplier(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                
+                <button type="button" onclick="addSupplierRow()" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Another Supplier
+                </button>
+            </div>
+            
             <!-- Current Images -->
             <div class="border-t pt-6">
                 <h3 class="text-lg font-medium mb-4">🖼️ Current Images</h3>
@@ -181,6 +285,7 @@
 
 <script>
 let attributeIndex = {{ $product->attributes->count() }};
+let supplierIndex = {{ $product->suppliers->count() }};
 
 function addAttributeRow() {
     const container = document.getElementById('attributesContainer');
@@ -199,40 +304,55 @@ function removeAttribute(button) {
     button.closest('.attribute-row').remove();
 }
 
-function previewImages() {
-    const preview = document.getElementById('imagePreview');
-    preview.innerHTML = '';
-    const files = document.getElementById('images').files;
-    
-    if (files.length === 0) return;
-    
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        
-        // Validate file type
-        if (!file.type.match('image.*')) {
-            alert('File "' + file.name + '" is not an image. Skipping.');
-            continue;
-        }
-        
-        // Validate file size (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('File "' + file.name + '" is too large (max 5MB). Skipping.');
-            continue;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'relative border rounded-lg p-2';
-            div.innerHTML = `
-                <img src="${e.target.result}" class="w-full h-32 object-cover rounded">
-                <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded ${i === 0 ? '' : 'hidden'}">Main</div>
-                <div class="text-xs text-gray-500 mt-1 text-center truncate">${file.name}</div>
-            `;
-            preview.appendChild(div);
-        }
-        reader.readAsDataURL(file);
+// Supplier Functions
+function addSupplierRow() {
+    const container = document.getElementById('suppliersContainer');
+    const newRow = document.createElement('div');
+    newRow.className = 'supplier-row bg-gray-50 rounded-lg p-4 mb-3';
+    newRow.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
+                <select name="suppliers[${supplierIndex}][supplier_id]" class="w-full px-3 py-2 border rounded-lg supplier-select">
+                    <option value="">Select Supplier</option>
+                    @foreach($suppliers as $s)
+                        <option value="{{ $s->id }}">{{ $s->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                <input type="text" name="suppliers[${supplierIndex}][supplier_sku]" placeholder="Supplier's product code" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Supplier Price (LKR)</label>
+                <input type="number" name="suppliers[${supplierIndex}][supplier_price]" step="0.01" placeholder="Cost from supplier" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (Days)</label>
+                <input type="number" name="suppliers[${supplierIndex}][lead_time_days]" placeholder="Delivery days" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div class="flex items-center">
+                <label class="flex items-center">
+                    <input type="checkbox" name="suppliers[${supplierIndex}][is_default]" value="1" class="mr-2">
+                    <span class="text-sm">Default Supplier</span>
+                </label>
+            </div>
+            <div class="flex items-center justify-end">
+                <button type="button" onclick="removeSupplier(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(newRow);
+    supplierIndex++;
+}
+
+function removeSupplier(button) {
+    const row = button.closest('.supplier-row');
+    if (document.querySelectorAll('.supplier-row').length > 1) {
+        row.remove();
+    } else {
+        alert('You must have at least one supplier row. To remove, select "None" from the dropdown.');
     }
 }
 

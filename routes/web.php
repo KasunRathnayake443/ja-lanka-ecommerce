@@ -151,6 +151,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('origin/{id}',    [StoreManagementController::class, 'deleteOrigin'])->name('origin.delete');
         });
 
+        // Supplier Management
+        Route::resource('suppliers', App\Http\Controllers\Admin\SupplierController::class);
+        Route::post('/suppliers/{id}/toggle-status', [App\Http\Controllers\Admin\SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
+
         // ── Products ──────────────────────────────────────────────────────────
         Route::resource('products', AdminProductController::class);
 
@@ -187,6 +191,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{id}/update-payment', [OrderController::class, 'updatePaymentStatus'])->name('update-payment');
             Route::delete('/{id}',              [OrderController::class, 'destroy'])->name('destroy');
             Route::get('/{id}/invoice',         [OrderController::class, 'invoice'])->name('invoice');
+        });
+
+        // Stock Management Routes
+        Route::prefix('stock')->name('stock.')->group(function () {
+            Route::get('/low', [App\Http\Controllers\Admin\StockController::class, 'lowStock'])->name('low');
+            Route::get('/out-of-stock', [App\Http\Controllers\Admin\StockController::class, 'outOfStock'])->name('out-of-stock');
+            Route::get('/restock/{productId}', [App\Http\Controllers\Admin\StockController::class, 'restockForm'])->name('restock');
+            Route::get('/status/{productId}', [App\Http\Controllers\Admin\StockController::class, 'getStockStatus'])->name('status');
+            Route::get('/counts', [App\Http\Controllers\Admin\StockController::class, 'getStockCounts'])->name('counts');
+            Route::post('/restock/store', [App\Http\Controllers\Admin\StockController::class, 'storeRestock'])->name('restock.store');
         });
 
         // ── Coupons ───────────────────────────────────────────────────────────

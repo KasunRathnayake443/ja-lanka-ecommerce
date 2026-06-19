@@ -88,6 +88,47 @@
                 </svg>
                 <span class="ml-3">Flash Sales</span>
             </a>
+
+            <a href="{{ route('admin.suppliers.index') }}" 
+            class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <span class="ml-3">Suppliers</span>
+            </a>
+
+         <!-- Stock Management Dropdown -->
+    <div x-data="{ open: false }" class="relative">
+        <a href="#" @click.prevent="open = !open" 
+        class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <span class="ml-3">Stock Management</span>
+            <span id="lowStockBadge" class="hidden ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+            <svg class="w-4 h-4 ml-2" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </a>
+        
+        <div x-show="open" x-transition:enter="transition ease-out duration-100" 
+            x-transition:enter-start="opacity-0 scale-95" 
+            x-transition:enter-end="opacity-100 scale-100"
+            class="ml-4 space-y-1 mt-1">
+            <a href="{{ route('admin.stock.low') }}" 
+            class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-3"></span>
+                <span>Low Stock</span>
+                <span id="lowStockCount" class="ml-auto text-xs text-yellow-500"></span>
+            </a>
+            <a href="{{ route('admin.stock.out-of-stock') }}" 
+            class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-3"></span>
+                <span>Out of Stock</span>
+                <span id="outOfStockCount" class="ml-auto text-xs text-red-500"></span>
+            </a>
+        </div>
+    </div>
             
             <a href="#" 
                class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
@@ -133,5 +174,38 @@
     </div>
 </div>
 @stack('scripts') 
+<script>
+    // Update stock counts in menu
+function updateStockCounts() {
+    fetch('{{ route("admin.stock.counts") }}')
+        .then(response => response.json())
+        .then(data => {
+            const lowBadge = document.getElementById('lowStockBadge');
+            const lowCount = document.getElementById('lowStockCount');
+            const outCount = document.getElementById('outOfStockCount');
+            
+            if (data.low_stock > 0) {
+                lowBadge.textContent = data.low_stock;
+                lowBadge.classList.remove('hidden');
+                lowCount.textContent = data.low_stock;
+            } else {
+                lowBadge.classList.add('hidden');
+                lowCount.textContent = '';
+            }
+            
+            if (data.out_of_stock > 0) {
+                outCount.textContent = data.out_of_stock;
+            } else {
+                outCount.textContent = '';
+            }
+        })
+        .catch(error => console.error('Error fetching stock counts:', error));
+}
+
+// Update every 60 seconds
+setInterval(updateStockCounts, 60000);
+// Initial load
+updateStockCounts();
+</script>
 </body>
 </html>
