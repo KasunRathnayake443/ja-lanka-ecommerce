@@ -81,7 +81,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <a href="{{ route('admin.stock.restock', $product->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                    <a href="{{ route('admin.restock.create', ['product_id' => $product->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
                             Restock
                         </a>
                     </td>

@@ -15,6 +15,8 @@ class Product extends Model
         'sale_start_date', 'sale_end_date', 'is_available', 'is_active',
     ];
 
+    // ========== CORE RELATIONSHIPS ==========
+
     public function brand()
     {
         return $this->belongsTo(Brand::class);
@@ -45,11 +47,11 @@ class Product extends Model
         return $this->hasOne(Inventory::class);
     }
 
-    // Add these methods to your Product model
+    // ========== SALE / PRICING ==========
 
     public function hasActiveSale()
     {
-        if (! $this->sale_price || $this->sale_price >= $this->regular_price) {
+        if (!$this->sale_price || $this->sale_price >= $this->regular_price) {
             return false;
         }
 
@@ -80,34 +82,67 @@ class Product extends Model
         return $this->hasActiveSale() ? $this->sale_price : $this->regular_price;
     }
 
+    // ========== SUPPLIER RELATIONSHIPS ==========
 
-/**
- * Get the suppliers for this product.
- */
-public function suppliers()
-{
-    return $this->belongsToMany(Supplier::class, 'product_supplier')
-        ->withPivot('supplier_sku', 'supplier_price', 'lead_time_days', 'is_default')
-        ->withTimestamps();
-}
+    /**
+     * Relationship: all suppliers for this product (safe for eager loading).
+     */
+    public function suppliers()
+    {
+        return $this->belongsToMany(Supplier::class, 'product_supplier')
+            ->withPivot('supplier_sku', 'supplier_price', 'lead_time_days', 'is_default')
+            ->withTimestamps();
+    }
 
-/**
- * Get the default supplier for this product.
- */
-public function defaultSupplier()
-{
-    return $this->belongsToMany(Supplier::class, 'product_supplier')
-        ->withPivot('supplier_sku', 'supplier_price', 'lead_time_days', 'is_default')
-        ->wherePivot('is_default', true)
-        ->withTimestamps()
-        ->first();
-}
+    /**
+     * Relationship: only the default supplier (safe for eager loading
+     * via ->with('defaultSupplierRelation') — does NOT execute the query itself).
+     */
+    public function defaultSupplierRelation()
+    {
+        return $this->belongsToMany(Supplier::class, 'product_supplier')
+            ->withPivot('supplier_sku', 'supplier_price', 'lead_time_days', 'is_default')
+            ->wherePivot('is_default', true)
+            ->withTimestamps();
+    }
 
-/**
- * Check if product has any supplier.
- */
-public function hasSupplier()
-{
-    return $this->suppliers()->exists();
-}
+    /**
+     * Accessor: $product->default_supplier
+     * Executes the query and returns a Supplier model or null.
+     * DO NOT use this name inside ->with([...]) — use defaultSupplierRelation() instead.
+     */
+    public function getDefaultSupplierAttribute()
+    {
+        return $this->defaultSupplierRelation()->first();
+    }
+
+    /**
+     * Check if product has any supplier linked.
+     */
+    public function hasSupplier()
+    {
+        return $this->suppliers()->exists();
+    }
+
+    // ========== RESTOCK RELATIONSHIPS ==========
+
+    public function restockRequestItems()
+    {
+        return $this->hasMany(RestockRequestItem::class);
+    }
+
+    public function purchaseOrderItems()
+    {
+        return $this->hasMany(PurchaseOrderItem::class);
+    }
+
+    public function getTotalRestockRequestedAttribute()
+    {
+        return $this->restockRequestItems()->sum('quantity_requested');
+    }
+
+    public function getTotalRestockReceivedAttribute()
+    {
+        return $this->restockRequestItems()->sum('quantity_received');
+    }
 }

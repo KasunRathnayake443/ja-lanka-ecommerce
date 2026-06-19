@@ -203,6 +203,47 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/restock/store', [App\Http\Controllers\Admin\StockController::class, 'storeRestock'])->name('restock.store');
         });
 
+// Restock Request Routes
+Route::prefix('restock')->name('restock.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Admin\RestockRequestController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Admin\RestockRequestController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Admin\RestockRequestController::class, 'store'])->name('store');
+    Route::get('/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [App\Http\Controllers\Admin\RestockRequestController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'destroy'])->name('destroy');
+    
+    // Actions
+    Route::post('/{id}/send', [App\Http\Controllers\Admin\RestockRequestController::class, 'send'])->name('send');
+    Route::post('/{id}/acknowledge', [App\Http\Controllers\Admin\RestockRequestController::class, 'acknowledge'])->name('acknowledge');
+    Route::post('/{id}/cancel', [App\Http\Controllers\Admin\RestockRequestController::class, 'cancel'])->name('cancel');
+    Route::post('/{id}/close', [App\Http\Controllers\Admin\RestockRequestController::class, 'close'])->name('close');
+    Route::post('/{id}/receive', [App\Http\Controllers\Admin\RestockRequestController::class, 'receiveStock'])->name('receive');
+    
+    // AJAX - These MUST be before the {id} route
+    Route::get('/search-products', [App\Http\Controllers\Admin\RestockRequestController::class, 'searchProducts'])->name('search-products');
+    Route::get('/get-product-details/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'getProductDetails'])->name('get-product-details');
+});
+
+
+// Purchase Order Routes
+Route::prefix('purchase-orders')->name('purchase-orders.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'store'])->name('store');
+    Route::get('/{id}', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'destroy'])->name('destroy');
+    
+    // Actions
+    Route::post('/{id}/send', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'send'])->name('send');
+    Route::post('/{id}/receive', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'receive'])->name('receive');
+    Route::post('/{id}/cancel', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'cancel'])->name('cancel');
+});
+
+
+
         // ── Coupons ───────────────────────────────────────────────────────────
         Route::resource('coupons', CouponController::class);
         Route::post('coupons/{id}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');

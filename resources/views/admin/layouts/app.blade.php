@@ -97,39 +97,77 @@
                 <span class="ml-3">Suppliers</span>
             </a>
 
-         <!-- Stock Management Dropdown -->
-    <div x-data="{ open: false }" class="relative">
-        <a href="#" @click.prevent="open = !open" 
-        class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-            </svg>
-            <span class="ml-3">Stock Management</span>
-            <span id="lowStockBadge" class="hidden ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
-            <svg class="w-4 h-4 ml-2" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-        </a>
+  <!-- 1. Stock Management Dropdown -->
+<div x-data="{ open: false }" class="relative">
+    <a href="#" @click.prevent="open = !open" 
+       class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+        </svg>
+        <span class="ml-3">Stock Management</span>
+        <span id="lowStockBadge" class="hidden ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
         
-        <div x-show="open" x-transition:enter="transition ease-out duration-100" 
-            x-transition:enter-start="opacity-0 scale-95" 
-            x-transition:enter-end="opacity-100 scale-100"
-            class="ml-4 space-y-1 mt-1">
-            <a href="{{ route('admin.stock.low') }}" 
-            class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
-                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-3"></span>
-                <span>Low Stock</span>
-                <span id="lowStockCount" class="ml-auto text-xs text-yellow-500"></span>
-            </a>
-            <a href="{{ route('admin.stock.out-of-stock') }}" 
-            class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
-                <span class="w-2 h-2 bg-red-500 rounded-full mr-3"></span>
-                <span>Out of Stock</span>
-                <span id="outOfStockCount" class="ml-auto text-xs text-red-500"></span>
-            </a>
-        </div>
+        <!-- Toggle Chevron Arrow -->
+        <svg class="w-4 h-4 ml-2" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </a>
+    
+    <div x-show="open" 
+         x-transition:enter="transition ease-out duration-100" 
+         x-transition:enter-start="opacity-0 scale-95" 
+         x-transition:enter-end="opacity-100 scale-100"
+         class="ml-4 space-y-1 mt-1">
+        <a href="{{ route('admin.stock.low') }}" 
+           class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+            <span class="mr-3">⚠️</span>
+            <span>Low Stock</span>
+            <span id="lowStockCount" class="ml-auto text-xs text-yellow-500"></span>
+        </a>
+        <a href="{{ route('admin.stock.out-of-stock') }}" 
+           class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+            <span class="mr-3">🚨</span>
+            <span>Out of Stock</span>
+            <span id="outOfStockCount" class="ml-auto text-xs text-red-500"></span>
+        </a>
     </div>
+</div>
+
+<!-- 2. Restock Dropdown -->
+<div x-data="{ open: false }" class="relative">
+    <a href="#" @click.prevent="open = !open" 
+       class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <span class="ml-3">Restock</span>
+        
+        <!-- Toggle Chevron Arrow -->
+        <svg class="w-4 h-4 ml-auto" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </a>
+    
+    <div x-show="open" 
+         x-transition:enter="transition ease-out duration-100" 
+         x-transition:enter-start="opacity-0 scale-95" 
+         x-transition:enter-end="opacity-100 scale-100"
+         class="ml-4 space-y-1 mt-1">
+        <a href="{{ route('admin.restock.index') }}" 
+           class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+            <span class="mr-3">📦</span>
+            <span>Restock Requests</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index') }}" 
+           class="flex items-center px-6 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
+            <span class="mr-3">📄</span>
+            <span>Purchase Orders</span>
+        </a>
+    </div>
+</div>
+
             
+
             <a href="#" 
                class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition mx-2 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,6 +176,8 @@
                 </svg>
                 <span class="ml-3">Settings</span>
             </a>
+            
+            
         </nav>
         
         <!-- Logout -->
