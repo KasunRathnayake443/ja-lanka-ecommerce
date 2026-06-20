@@ -64,6 +64,7 @@ class PurchaseOrder extends Model
         $labels = [
             'draft' => 'Draft',
             'sent' => 'Sent to Supplier',
+            'partially_received' => 'Partially Received',
             'received' => 'Received',
             'cancelled' => 'Cancelled',
         ];
@@ -76,11 +77,68 @@ class PurchaseOrder extends Model
         $colors = [
             'draft' => 'gray',
             'sent' => 'blue',
+            'partially_received' => 'yellow',
             'received' => 'green',
             'cancelled' => 'red',
         ];
 
         return $colors[$this->status] ?? 'gray';
+    }
+
+    /**
+     * Check if the purchase order can receive more stock.
+     */
+    public function canReceiveStock()
+    {
+        return in_array($this->status, ['sent', 'partially_received']);
+    }
+
+    /**
+     * Check if all items are fully received.
+     */
+    public function isFullyReceived()
+    {
+        foreach ($this->items as $item) {
+            if ($item->quantity_received < $item->quantity_ordered) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get the total quantity ordered across all items.
+     */
+    public function getTotalQuantityOrderedAttribute()
+    {
+        return $this->items->sum('quantity_ordered');
+    }
+
+    /**
+     * Get the total quantity received across all items.
+     */
+    public function getTotalQuantityReceivedAttribute()
+    {
+        return $this->items->sum('quantity_received');
+    }
+
+    /**
+     * Get the remaining quantity across all items.
+     */
+    public function getTotalRemainingAttribute()
+    {
+        return $this->total_quantity_ordered - $this->total_quantity_received;
+    }
+
+    /**
+     * Get the receiving progress percentage.
+     */
+    public function getReceiveProgressAttribute()
+    {
+        if ($this->total_quantity_ordered == 0) {
+            return 0;
+        }
+        return round(($this->total_quantity_received / $this->total_quantity_ordered) * 100);
     }
 
     // ========== METHODS ==========
@@ -113,5 +171,24 @@ class PurchaseOrder extends Model
         ]);
 
         return $this;
+    }
+
+    /**
+     * Update the PO status based on receiving progress.
+     */
+    public function updateStatusBasedOnReceiving()
+    {
+        if ($this->isFullyReceived()) {
+            $this->update([
+                'status' => 'received',
+                'actual_delivery_date' => now()->toDateString(),
+            ]);
+            return 'received';
+        } elseif ($this->total_quantity_received > 0) {
+            $this->update(['status' => 'partially_received']);
+            return 'partially_received';
+        }
+        
+        return $this->status;
     }
 }

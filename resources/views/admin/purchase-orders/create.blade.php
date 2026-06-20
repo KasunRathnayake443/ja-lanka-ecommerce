@@ -3,6 +3,22 @@
 @section('page_title', 'Create Purchase Order')
 
 @section('content')
+@if(session('error'))
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        <ul class="list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="bg-white rounded-xl shadow-md overflow-hidden">
     <div class="px-6 py-4 border-b bg-gray-50 flex justify-between items-center">
         <div>
@@ -82,26 +98,111 @@
                 <div id="itemsContainer">
                     @if(isset($selectedProducts) && count($selectedProducts) > 0)
                         @foreach($selectedProducts as $index => $product)
-                            @include('admin.purchase-orders.partials._item_row', [
-                                'index' => $index,
-                                'productData' => $product,
-                                'selected' => true
-                            ])
+                            <div class="item-row border rounded-lg p-4 mb-3" id="item_row_{{ $index }}">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Product *</label>
+                                        <div class="relative">
+                                            <input type="text" id="product_{{ $index }}" value="{{ $product['product_name'] ?? $product['name'] ?? '' }}" 
+                                                   class="w-full px-3 py-2 border rounded-lg bg-gray-50" readonly>
+                                            <input type="hidden" name="items[{{ $index }}][product_id]" id="product_id_{{ $index }}" value="{{ $product['product_id'] ?? $product['id'] ?? '' }}">
+                                            <div id="product_results_{{ $index }}" class="hidden absolute z-10 bg-white border rounded-lg shadow-lg w-full max-h-48 overflow-y-auto"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                                        <input type="number" name="items[{{ $index }}][quantity_ordered]" required min="1" 
+                                               value="{{ $product['quantity_ordered'] ?? 10 }}" 
+                                               class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Unit Cost (LKR) *</label>
+                                        <input type="number" name="items[{{ $index }}][unit_cost]" required step="0.01" id="unit_cost_{{ $index }}" 
+                                               value="{{ $product['unit_cost'] ?? '' }}"
+                                               class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                                        <input type="text" name="items[{{ $index }}][supplier_sku]" 
+                                               value="{{ $product['supplier_sku'] ?? '' }}"
+                                               class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div class="md:col-span-4 flex justify-end">
+                                        <button type="button" onclick="removeItem(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     @elseif(old('items'))
                         @foreach(old('items') as $index => $item)
-                            @include('admin.purchase-orders.partials._item_row', [
-                                'index' => $index,
-                                'productData' => $item,
-                                'selected' => false
-                            ])
+                            <div class="item-row border rounded-lg p-4 mb-3" id="item_row_{{ $index }}">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Product *</label>
+                                        <div class="relative">
+                                            <input type="text" id="product_{{ $index }}" value="{{ $item['product_name'] ?? '' }}" 
+                                                   class="w-full px-3 py-2 border rounded-lg bg-gray-50" readonly>
+                                            <input type="hidden" name="items[{{ $index }}][product_id]" id="product_id_{{ $index }}" value="{{ $item['product_id'] ?? '' }}">
+                                            <div id="product_results_{{ $index }}" class="hidden absolute z-10 bg-white border rounded-lg shadow-lg w-full max-h-48 overflow-y-auto"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                                        <input type="number" name="items[{{ $index }}][quantity_ordered]" required min="1" 
+                                               value="{{ $item['quantity_ordered'] ?? 10 }}" 
+                                               class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Unit Cost (LKR) *</label>
+                                        <input type="number" name="items[{{ $index }}][unit_cost]" required step="0.01" id="unit_cost_{{ $index }}" 
+                                               value="{{ $item['unit_cost'] ?? '' }}"
+                                               class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                                        <input type="text" name="items[{{ $index }}][supplier_sku]" 
+                                               value="{{ $item['supplier_sku'] ?? '' }}"
+                                               class="w-full px-3 py-2 border rounded-lg">
+                                    </div>
+                                    <div class="md:col-span-4 flex justify-end">
+                                        <button type="button" onclick="removeItem(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     @else
-                        @include('admin.purchase-orders.partials._item_row', [
-                            'index' => 0,
-                            'productData' => null,
-                            'selected' => false
-                        ])
+                        <div class="item-row border rounded-lg p-4 mb-3" id="item_row_0">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Product *</label>
+                                    <div class="relative">
+                                        <input type="text" id="product_0" placeholder="Search product..." 
+                                               class="w-full px-3 py-2 border rounded-lg" 
+                                               oninput="searchProduct(this, '0')">
+                                        <input type="hidden" name="items[0][product_id]" id="product_id_0" value="">
+                                        <div id="product_results_0" class="hidden absolute z-10 bg-white border rounded-lg shadow-lg w-full max-h-48 overflow-y-auto"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                                    <input type="number" name="items[0][quantity_ordered]" required min="1" value="10" 
+                                           class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Unit Cost (LKR) *</label>
+                                    <input type="number" name="items[0][unit_cost]" required step="0.01" id="unit_cost_0" 
+                                           class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier SKU</label>
+                                    <input type="text" name="items[0][supplier_sku]" 
+                                           class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div class="md:col-span-4 flex justify-end">
+                                    <button type="button" onclick="removeItem(this)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                </div>
+                            </div>
+                        </div>
                     @endif
                 </div>
 
@@ -135,7 +236,8 @@ function searchProduct(input, rowId) {
         return;
     }
 
-    fetch(`{{ route('admin.restock.search-products') }}?search=${encodeURIComponent(searchTerm)}`)
+    // Use the full URL directly instead of route helper
+    fetch(`{{ url('admin/restock/search-products') }}?search=${encodeURIComponent(searchTerm)}`)
         .then(response => response.json())
         .then(products => {
             if (products.length === 0) {
@@ -157,14 +259,14 @@ function searchProduct(input, rowId) {
 }
 
 function selectProduct(productId, rowId) {
-    const row = document.getElementById(`item_row_${rowId}`);
     const productInput = document.getElementById(`product_${rowId}`);
     const productIdInput = document.getElementById(`product_id_${rowId}`);
     const resultsContainer = document.getElementById(`product_results_${rowId}`);
     
     productInput.value = 'Loading...';
     
-    fetch(`{{ route('admin.restock.get-product-details', '') }}/${productId}`)
+    // Use the full URL directly instead of route helper
+    fetch(`{{ url('admin/restock/get-product-details') }}/${productId}`)
         .then(response => response.json())
         .then(data => {
             productInput.value = data.name;

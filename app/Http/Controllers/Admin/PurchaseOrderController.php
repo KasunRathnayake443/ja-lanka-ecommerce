@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\RestockRequest;
+use App\Models\RestockRequestItem;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -371,32 +373,82 @@ class PurchaseOrderController extends Controller
     }
 
     /**
-     * Mark purchase order as received.
+     * Mark purchase order as received and update inventory.
      */
     public function receive($id)
     {
-        $purchaseOrder = PurchaseOrder::findOrFail($id);
+        $purchaseOrder = PurchaseOrder::with(['items'])->findOrFail($id);
         
         if ($purchaseOrder->status !== 'sent') {
             return redirect()->back()
                 ->with('error', 'Only sent purchase orders can be marked as received.');
         }
 
-        $purchaseOrder->update([
-            'status' => 'received',
-            'actual_delivery_date' => now()->toDateString(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // Update linked restock request if exists
-        if ($purchaseOrder->restock_request_id) {
-            $restockRequest = RestockRequest::find($purchaseOrder->restock_request_id);
-            if ($restockRequest && $restockRequest->status === 'ordered') {
-                $restockRequest->updateStatus('received', Auth::id(), 'Purchase order received');
+            // Update PO status
+            $purchaseOrder->update([
+                'status' => 'received',
+                'actual_delivery_date' => now()->toDateString(),
+            ]);
+
+            // ✅ UPDATE INVENTORY FOR EACH PRODUCT
+            foreach ($purchaseOrder->items as $item) {
+                $inventory = Inventory::where('product_id', $item->product_id)->first();
+                
+                if ($inventory) {
+                    // Add the received quantity to quantity_on_hand
+                    $inventory->increment('quantity_on_hand', $item->quantity_ordered);
+                    
+                    // Update the item's quantity_received
+                    $item->update([
+                        'quantity_received' => $item->quantity_ordered
+                    ]);
+                } else {
+                    // If no inventory record exists, create one
+                    Inventory::create([
+                        'product_id' => $item->product_id,
+                        'quantity_on_hand' => $item->quantity_ordered,
+                        'quantity_sold' => 0,
+                        'quantity_reserved' => 0,
+                        'reorder_level' => 5,
+                    ]);
+                }
             }
-        }
 
-        return redirect()->route('admin.purchase-orders.show', $purchaseOrder->id)
-            ->with('success', 'Purchase order marked as received!');
+            // Update linked restock request if exists
+            if ($purchaseOrder->restock_request_id) {
+                $restockRequest = RestockRequest::find($purchaseOrder->restock_request_id);
+                if ($restockRequest && $restockRequest->status === 'ordered') {
+                    // Update each restock item's quantity_received
+                    foreach ($purchaseOrder->items as $item) {
+                        $restockItem = RestockRequestItem::where('restock_request_id', $restockRequest->id)
+                            ->where('product_id', $item->product_id)
+                            ->first();
+                        
+                        if ($restockItem) {
+                            $restockItem->update([
+                                'quantity_received' => $restockItem->quantity_received + $item->quantity_ordered
+                            ]);
+                        }
+                    }
+                    
+                    // Update restock request status
+                    $restockRequest->updateStatus('received', Auth::id(), 'Purchase order received - stock updated');
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.purchase-orders.show', $purchaseOrder->id)
+                ->with('success', 'Purchase order marked as received! Stock has been updated.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Failed to update stock: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -412,6 +464,14 @@ class PurchaseOrderController extends Controller
         }
 
         $purchaseOrder->update(['status' => 'cancelled']);
+
+        // Update linked restock request if exists
+        if ($purchaseOrder->restock_request_id) {
+            $restockRequest = RestockRequest::find($purchaseOrder->restock_request_id);
+            if ($restockRequest && $restockRequest->status === 'ordered') {
+                $restockRequest->updateStatus('cancelled', Auth::id(), 'Purchase order cancelled');
+            }
+        }
 
         return redirect()->route('admin.purchase-orders.show', $purchaseOrder->id)
             ->with('success', 'Purchase order cancelled successfully!');
