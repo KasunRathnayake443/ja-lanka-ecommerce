@@ -12,6 +12,7 @@ use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -287,150 +288,139 @@ class OrderController extends Controller
     public function storeManual(Request $request)
     {
         $request->validate([
-            'user_type' => 'required|in:existing,guest',
-            'user_id' => 'required_if:user_type,existing|exists:users,id',
-            'guest_name' => 'required_if:user_type,guest|string|max:255',
-            'guest_email' => 'required_if:user_type,guest|email|max:255',
-            'guest_mobile' => 'required_if:user_type,guest|string|max:20',
-            'address_id' => 'nullable|exists:addresses,id',
-            'full_name' => 'required|string|max:255',
-            'mobile' => 'required|string|max:20',
-            'address_line1' => 'required|string|max:255',
-            'address_line2' => 'nullable|string|max:255',
-            'city' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'province' => 'nullable|string|max:100',
-            'postal_code' => 'nullable|string|max:20',
+            'user_type'             => 'required|in:existing,guest',
+            'user_id'               => 'required_if:user_type,existing|nullable|exists:users,id',
+            'guest_name'            => 'nullable|required_if:user_type,guest|string|max:255',
+            'guest_email'           => 'nullable|required_if:user_type,guest|email|max:255',
+            'guest_mobile'          => 'nullable|required_if:user_type,guest|string|max:20',
+            'address_id'            => 'nullable|exists:addresses,id',
+            'full_name'             => 'required|string|max:255',
+            'mobile'                => 'required|string|max:20',
+            'address_line1'         => 'required|string|max:255',
+            'address_line2'         => 'nullable|string|max:255',
+            'city'                  => 'required|string|max:100',
+            'district'              => 'required|string|max:100',
+            'province'              => 'nullable|string|max:100',
+            'postal_code'           => 'nullable|string|max:20',
             'delivery_instructions' => 'nullable|string',
-            'shipping_method' => 'required|in:standard,express,pickup',
-            'payment_method' => 'required|in:card,cod,bank_transfer',
-            'payment_status' => 'required|in:pending,paid,failed',
-            'order_status' => 'required|in:pending,processing,shipped,delivered',
-            'notes' => 'nullable|string',
-            'items' => 'required|string',
-            'coupon_code' => 'nullable|string',
-            'manual_discount' => 'nullable|numeric|min:0',
+            'shipping_method'      => 'required|in:standard,express,pickup',
+            'payment_method'       => 'required|in:card,cod,bank_transfer',
+            'payment_status'       => 'required|in:pending,paid,failed',
+            'order_status'         => 'required|in:pending,processing,shipped,delivered',
+            'notes'                 => 'nullable|string',
+            'items'                 => 'required|string',
+            'coupon_code'           => 'nullable|string',
+            'manual_discount'      => 'nullable|numeric|min:0',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Decode items from JSON
             $items = json_decode($request->items, true);
-            
+
             if (empty($items)) {
                 throw new \Exception('No items in order');
             }
 
-            // Calculate subtotal
             $subtotal = 0;
             foreach ($items as $item) {
                 $subtotal += $item['quantity'] * $item['unit_price'];
             }
 
-            // Calculate shipping
             $shippingAmount = 0;
             if ($request->shipping_method === 'express') {
                 $shippingAmount = 650;
             } elseif ($request->shipping_method === 'standard') {
                 $shippingAmount = 350;
             }
-            
-            // Calculate coupon discount
-            $couponDiscount = 0;
-            $coupon = null;
+
+            $couponDiscount    = 0;
+            $coupon            = null;
             $appliedCouponCode = null;
-            
+
             if ($request->coupon_code) {
                 $coupon = Coupon::where('code', strtoupper($request->coupon_code))->first();
                 if ($coupon && $coupon->isValid($subtotal)) {
-                    $couponDiscount = $coupon->calculateDiscount($subtotal);
+                    $couponDiscount    = $coupon->calculateDiscount($subtotal);
                     $appliedCouponCode = $coupon->code;
                 }
             }
-            
-            // Manual discount
+
             $manualDiscount = $request->manual_discount ?? 0;
-            
-            // Total discount
-            $totalDiscount = $couponDiscount + $manualDiscount;
-            
-            // Calculate tax (5% on amount after discount)
+            $totalDiscount  = $couponDiscount + $manualDiscount;
+
             $taxableAmount = $subtotal - $totalDiscount;
-            $taxAmount = $taxableAmount * 0.05;
-            
-            // Grand total
-            $grandTotal = $taxableAmount + $shippingAmount + $taxAmount;
-            
-            // Create or use existing address
+            $taxAmount     = $taxableAmount * 0.05;
+            $grandTotal    = $taxableAmount + $shippingAmount + $taxAmount;
+
             $address = null;
             if ($request->address_id) {
                 $address = Address::find($request->address_id);
             }
-            
+
             if (!$address) {
                 $address = Address::create([
-                    'user_id' => $request->user_type == 'existing' ? $request->user_id : null,
-                    'label' => 'Order Address',
-                    'full_name' => $request->full_name,
-                    'mobile' => $request->mobile,
-                    'address_line1' => $request->address_line1,
-                    'address_line2' => $request->address_line2,
-                    'city' => $request->city,
-                    'district' => $request->district,
-                    'province' => $request->province,
-                    'postal_code' => $request->postal_code,
+                    'user_id'               => $request->user_type == 'existing' ? $request->user_id : null,
+                    'label'                 => 'Order Address',
+                    'full_name'             => $request->full_name,
+                    'mobile'                => $request->mobile,
+                    'address_line1'         => $request->address_line1,
+                    'address_line2'         => $request->address_line2,
+                    'city'                  => $request->city,
+                    'district'              => $request->district,
+                    'province'              => $request->province,
+                    'postal_code'           => $request->postal_code,
                     'delivery_instructions' => $request->delivery_instructions,
-                    'is_default' => false,
+                    'is_default'            => false,
                 ]);
             }
 
-            // Generate order number
             $orderNumber = 'ORD-' . strtoupper(uniqid());
 
-            // Create order
             $order = Order::create([
-                'order_number' => $orderNumber,
-                'user_id' => $request->user_type == 'existing' ? $request->user_id : null,
-                'guest_email' => $request->user_type == 'guest' ? $request->guest_email : null,
-                'guest_name' => $request->user_type == 'guest' ? $request->guest_name : null,
-                'guest_mobile' => $request->user_type == 'guest' ? $request->guest_mobile : null,
-                'total_amount' => $subtotal,
-                'subtotal' => $subtotal,
-                'discount_amount' => $totalDiscount,
-                'shipping_amount' => $shippingAmount,
-                'tax_amount' => $taxAmount,
-                'grand_total' => $grandTotal,
-                'shipping_address_id' => $address->id,
-                'billing_address_id' => $address->id,
-                'shipping_method' => $request->shipping_method,
-                'payment_method' => $request->payment_method,
-                'payment_status' => $request->payment_status,
-                'order_status' => $request->order_status,
-                'coupon_code' => $appliedCouponCode,
-                'coupon_discount' => $couponDiscount,
-                'notes' => $request->notes,
-                'placed_at' => now(),
+                'order_number'         => $orderNumber,
+                'user_id'              => $request->user_type == 'existing' ? $request->user_id : null,
+                'guest_email'          => $request->user_type == 'guest' ? $request->guest_email  : null,
+                'guest_name'           => $request->user_type == 'guest' ? $request->guest_name   : null,
+                'guest_mobile'         => $request->user_type == 'guest' ? $request->guest_mobile  : null,
+                'total_amount'         => $subtotal,
+                'subtotal'             => $subtotal,
+                'discount_amount'      => $totalDiscount,
+                'shipping_amount'      => $shippingAmount,
+                'tax_amount'           => $taxAmount,
+                'grand_total'          => $grandTotal,
+                'shipping_address_id'  => $address->id,
+                'billing_address_id'   => $address->id,
+                'shipping_method'      => $request->shipping_method,
+                'payment_method'       => $request->payment_method,
+                'payment_status'       => $request->payment_status,
+                'order_status'         => $request->order_status,
+                'coupon_code'          => $appliedCouponCode,
+                'coupon_discount'      => $couponDiscount,
+                'notes'                => $request->notes,
+                'placed_at'            => now(),
             ]);
 
-            // Create order items and update inventory
             foreach ($items as $item) {
                 $product = Product::find($item['product_id']);
-                
+
+                if (!$product) {
+                    throw new \Exception("Product with ID {$item['product_id']} not found");
+                }
+
                 $mainImage = $product->images()->where('is_main', true)->first();
-                
+
                 OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item['product_id'],
+                    'order_id'      => $order->id,
+                    'product_id'   => $item['product_id'],
                     'product_name' => $product->name,
-                    'product_sku' => $product->sku,
-                    'product_image' => $mainImage ? $mainImage->image_path : null,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total_price' => $item['quantity'] * $item['unit_price'],
+                    'product_sku'  => $product->sku,
+                    'product_image'=> $mainImage ? $mainImage->image_path : null,
+                    'quantity'      => $item['quantity'],
+                    'unit_price'   => $item['unit_price'],
+                    'total_price'  => $item['quantity'] * $item['unit_price'],
                 ]);
 
-                // Update inventory
                 $inventory = Inventory::where('product_id', $item['product_id'])->first();
                 if ($inventory) {
                     if ($inventory->quantity_on_hand < $item['quantity']) {
@@ -440,8 +430,7 @@ class OrderController extends Controller
                     $inventory->increment('quantity_sold', $item['quantity']);
                 }
             }
-            
-            // Record coupon usage if coupon was applied
+
             if ($coupon && $couponDiscount > 0 && $order->user_id) {
                 $coupon->applyUsage($order->user_id, $order->id, $couponDiscount);
             }
@@ -453,7 +442,10 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
+            Log::error('Manual order creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return back()
                 ->with('error', 'Failed to create order: ' . $e->getMessage())
                 ->withInput();
         }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RestockStatusHistory extends Model
 {
     use HasFactory;
-
+    protected $table = 'restock_status_history'; 
     protected $fillable = [
         'restock_request_id',
         'old_status',

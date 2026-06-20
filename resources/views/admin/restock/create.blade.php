@@ -3,6 +3,28 @@
 @section('page_title', 'Create Restock Request')
 
 @section('content')
+
+@section('content')
+
+@if(session('error'))
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        <ul class="list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden"></div>
+
+
 <div class="bg-white rounded-xl shadow-md overflow-hidden">
     <div class="px-6 py-4 border-b bg-gray-50 flex justify-between items-center">
         <div>

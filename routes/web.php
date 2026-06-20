@@ -9,6 +9,10 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\StoreManagementController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\StockController;
+use App\Http\Controllers\Admin\RestockRequestController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\FoodController;
@@ -151,9 +155,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('origin/{id}',    [StoreManagementController::class, 'deleteOrigin'])->name('origin.delete');
         });
 
-        // Supplier Management
-        Route::resource('suppliers', App\Http\Controllers\Admin\SupplierController::class);
-        Route::post('/suppliers/{id}/toggle-status', [App\Http\Controllers\Admin\SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
+        // ── Suppliers ─────────────────────────────────────────────────────────
+        Route::resource('suppliers', SupplierController::class);
+        Route::post('/suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
 
         // ── Products ──────────────────────────────────────────────────────────
         Route::resource('products', AdminProductController::class);
@@ -193,79 +197,70 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{id}/invoice',         [OrderController::class, 'invoice'])->name('invoice');
         });
 
-        // Stock Management Routes
+        // ── Stock Management ─────────────────────────────────────────────────
         Route::prefix('stock')->name('stock.')->group(function () {
-            Route::get('/low', [App\Http\Controllers\Admin\StockController::class, 'lowStock'])->name('low');
-            Route::get('/out-of-stock', [App\Http\Controllers\Admin\StockController::class, 'outOfStock'])->name('out-of-stock');
-            Route::get('/restock/{productId}', [App\Http\Controllers\Admin\StockController::class, 'restockForm'])->name('restock');
-            Route::get('/status/{productId}', [App\Http\Controllers\Admin\StockController::class, 'getStockStatus'])->name('status');
-            Route::get('/counts', [App\Http\Controllers\Admin\StockController::class, 'getStockCounts'])->name('counts');
-            Route::post('/restock/store', [App\Http\Controllers\Admin\StockController::class, 'storeRestock'])->name('restock.store');
+            Route::get('/low',                  [StockController::class, 'lowStock'])->name('low');
+            Route::get('/out-of-stock',         [StockController::class, 'outOfStock'])->name('out-of-stock');
+            Route::get('/restock/{productId}',  [StockController::class, 'restockForm'])->name('restock');
+            Route::get('/status/{productId}',   [StockController::class, 'getStockStatus'])->name('status');
+            Route::get('/counts',               [StockController::class, 'getStockCounts'])->name('counts');
+            Route::post('/restock/store',       [StockController::class, 'storeRestock'])->name('restock.store');
         });
 
-// Restock Request Routes
-Route::prefix('restock')->name('restock.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Admin\RestockRequestController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Admin\RestockRequestController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Admin\RestockRequestController::class, 'store'])->name('store');
-    Route::get('/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [App\Http\Controllers\Admin\RestockRequestController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'update'])->name('update');
-    Route::delete('/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'destroy'])->name('destroy');
-    
-    // Actions
-    Route::post('/{id}/send', [App\Http\Controllers\Admin\RestockRequestController::class, 'send'])->name('send');
-    Route::post('/{id}/acknowledge', [App\Http\Controllers\Admin\RestockRequestController::class, 'acknowledge'])->name('acknowledge');
-    Route::post('/{id}/cancel', [App\Http\Controllers\Admin\RestockRequestController::class, 'cancel'])->name('cancel');
-    Route::post('/{id}/close', [App\Http\Controllers\Admin\RestockRequestController::class, 'close'])->name('close');
-    Route::post('/{id}/receive', [App\Http\Controllers\Admin\RestockRequestController::class, 'receiveStock'])->name('receive');
-    
-    // AJAX - These MUST be before the {id} route
-    Route::get('/search-products', [App\Http\Controllers\Admin\RestockRequestController::class, 'searchProducts'])->name('search-products');
-    Route::get('/get-product-details/{id}', [App\Http\Controllers\Admin\RestockRequestController::class, 'getProductDetails'])->name('get-product-details');
-});
+        // ── Restock Requests ──────────────────────────────────────────────────
+        Route::prefix('restock')->name('restock.')->group(function () {
+            Route::get('/',       [RestockRequestController::class, 'index'])->name('index');
+            Route::get('/create', [RestockRequestController::class, 'create'])->name('create');
+            Route::post('/',      [RestockRequestController::class, 'store'])->name('store');
 
+            // AJAX / static routes MUST come before /{id}
+            Route::get('/search-products',          [RestockRequestController::class, 'searchProducts'])->name('search-products');
+            Route::get('/get-product-details/{id}', [RestockRequestController::class, 'getProductDetails'])->name('get-product-details');
 
-// Purchase Order Routes
-Route::prefix('purchase-orders')->name('purchase-orders.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'store'])->name('store');
-    Route::get('/{id}', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'update'])->name('update');
-    Route::delete('/{id}', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'destroy'])->name('destroy');
-    
-    // Actions
-    Route::post('/{id}/send', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'send'])->name('send');
-    Route::post('/{id}/receive', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'receive'])->name('receive');
-    Route::post('/{id}/cancel', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'cancel'])->name('cancel');
-});
+            // Wildcard /{id} routes LAST
+            Route::get('/{id}',             [RestockRequestController::class, 'show'])->name('show');
+            Route::get('/{id}/edit',        [RestockRequestController::class, 'edit'])->name('edit');
+            Route::put('/{id}',             [RestockRequestController::class, 'update'])->name('update');
+            Route::delete('/{id}',          [RestockRequestController::class, 'destroy'])->name('destroy');
+            Route::post('/{id}/send',        [RestockRequestController::class, 'send'])->name('send');
+            Route::post('/{id}/acknowledge', [RestockRequestController::class, 'acknowledge'])->name('acknowledge');
+            Route::post('/{id}/cancel',      [RestockRequestController::class, 'cancel'])->name('cancel');
+            Route::post('/{id}/close',       [RestockRequestController::class, 'close'])->name('close');
+            Route::post('/{id}/receive',     [RestockRequestController::class, 'receiveStock'])->name('receive');
+        });
 
+        // ── Purchase Orders ───────────────────────────────────────────────────
+        Route::prefix('purchase-orders')->name('purchase-orders.')->group(function () {
+            Route::get('/',       [PurchaseOrderController::class, 'index'])->name('index');
+            Route::get('/create', [PurchaseOrderController::class, 'create'])->name('create');
+            Route::post('/',      [PurchaseOrderController::class, 'store'])->name('store');
 
+            Route::get('/{id}',       [PurchaseOrderController::class, 'show'])->name('show');
+            Route::get('/{id}/edit',  [PurchaseOrderController::class, 'edit'])->name('edit');
+            Route::put('/{id}',       [PurchaseOrderController::class, 'update'])->name('update');
+            Route::delete('/{id}',    [PurchaseOrderController::class, 'destroy'])->name('destroy');
+            Route::post('/{id}/send', [PurchaseOrderController::class, 'send'])->name('send');
+            Route::post('/{id}/receive', [PurchaseOrderController::class, 'receive'])->name('receive');
+            Route::post('/{id}/cancel',  [PurchaseOrderController::class, 'cancel'])->name('cancel');
+        });
 
         // ── Coupons ───────────────────────────────────────────────────────────
         Route::resource('coupons', CouponController::class);
         Route::post('coupons/{id}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
         Route::get('coupons/{id}/usage',          [CouponController::class, 'usage'])->name('coupons.usage');
-    });
 
-  
+    }); // ← admin middleware group closes HERE, after everything that needs auth
 
-// Auto-migrate when you hit https://your-site.infinityfreeapp.com/run-migrations
+}); // ← admin prefix/name group closes HERE
+
+// ========== UTILITY (outside admin, no auth needed) ==========
 Route::get('/run-migrations', function () {
-    if (config('app.env') === 'production' && !config('app.debug')) {
-        // Optional safety check: Ensure this doesn't run casually in true production
-    }
-
     try {
         Artisan::call('migrate', ['--force' => true]);
         return 'Migrations completed successfully!<br><pre>' . Artisan::output() . '</pre>';
     } catch (\Exception $e) {
         return 'Error running migrations: ' . $e->getMessage();
     }
-});
-
 });
 
 require __DIR__.'/auth.php';
